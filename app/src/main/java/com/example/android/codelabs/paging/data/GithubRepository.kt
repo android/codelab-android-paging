@@ -48,10 +48,10 @@ class GithubRepository(
         lastRequestedPage = 1
         requestAndSaveData(query)
 
-        // Get the paged list from the database
-        val livePagedList = cache.reposByName(query)
+        // Get data from the local cache
+        val data = cache.reposByName(query)
         // Get the network errors exposed by the boundary callback
-        return RepoSearchResult(livePagedList, networkErrors)
+        return RepoSearchResult(data, networkErrors)
     }
 
     fun requestMore(query: String) {

@@ -43,7 +43,7 @@ class GithubLocalCache(
     }
 
     /**
-     * Request a [DataSource.Factory] from the Dao, based on a repo name. If the name contains
+     * Request a LiveData<List<Repo>> from the Dao, based on a repo name. If the name contains
      * multiple words separated by spaces, then we're emulating the GitHub API behavior and allow
      * any characters between the words.
      * @param name repository name
@@ -51,7 +51,6 @@ class GithubLocalCache(
     fun reposByName(name: String): LiveData<List<Repo>> {
         // appending '%' so we can allow other characters to be before and after the query string
         val query = "%${name.replace(' ', '%')}%"
-        Log.d("flo", "requesting $query")
         return repoDao.reposByName(query)
     }
 }
