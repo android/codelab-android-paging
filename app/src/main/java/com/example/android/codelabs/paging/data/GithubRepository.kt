@@ -50,7 +50,7 @@ class GithubRepository(
 
         // Get data from the local cache
         val data = cache.reposByName(query)
-        // Get the network errors exposed by the boundary callback
+
         return RepoSearchResult(data, networkErrors)
     }
 

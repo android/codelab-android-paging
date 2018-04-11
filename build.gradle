@@ -50,7 +50,7 @@ ext {
     constraintLayoutVersion = "1.0.2"
     archComponentsVersion = "1.1.1"
     roomVersion = "1.1.0-beta1"
-    pagingVersion = "1.0.0-alpha7"
+    pagingVersion = "1.0.0-beta1"
     retrofitVersion = "2.3.0"
     okhttpLoggingInterceptorVersion = "3.9.0"
 
