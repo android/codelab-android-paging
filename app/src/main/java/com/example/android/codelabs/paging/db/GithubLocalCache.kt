@@ -16,7 +16,6 @@
 
 package com.example.android.codelabs.paging.db
 
-import android.arch.lifecycle.LiveData
 import android.arch.paging.DataSource
 import android.util.Log
 import com.example.android.codelabs.paging.model.Repo
@@ -34,7 +33,7 @@ class GithubLocalCache(
     /**
      * Insert a list of repos in the database, on a background thread.
      */
-    fun insert(repos: List<Repo>, insertFinished: ()-> Unit) {
+    fun insert(repos: List<Repo>, insertFinished: () -> Unit) {
         ioExecutor.execute {
             Log.d("GithubLocalCache", "inserting ${repos.size} repos")
             repoDao.insert(repos)
@@ -48,7 +47,7 @@ class GithubLocalCache(
      * any characters between the words.
      * @param name repository name
      */
-    fun reposByName(name: String): LiveData<List<Repo>> {
+    fun reposByName(name: String): DataSource.Factory<Int, Repo> {
         // appending '%' so we can allow other characters to be before and after the query string
         val query = "%${name.replace(' ', '%')}%"
         return repoDao.reposByName(query)

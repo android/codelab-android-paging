@@ -16,7 +16,7 @@
 
 package com.example.android.codelabs.paging.db
 
-import android.arch.lifecycle.LiveData
+import android.arch.paging.DataSource
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.OnConflictStrategy
@@ -37,6 +37,6 @@ interface RepoDao {
     // and order those results descending, by the number of stars and then by name
     @Query("SELECT * FROM repos WHERE (name LIKE :queryString) OR (description LIKE " +
             ":queryString) ORDER BY stars DESC, name ASC")
-    fun reposByName(queryString: String): LiveData<List<Repo>>
+    fun reposByName(queryString: String): DataSource.Factory<Int, Repo>
 
 }
