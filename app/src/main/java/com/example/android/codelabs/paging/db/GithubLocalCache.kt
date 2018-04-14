@@ -17,7 +17,7 @@
 package com.example.android.codelabs.paging.db
 
 import android.util.Log
-import androidx.lifecycle.LiveData
+import androidx.paging.DataSource
 import com.example.android.codelabs.paging.model.Repo
 import java.util.concurrent.Executor
 
@@ -26,8 +26,8 @@ import java.util.concurrent.Executor
  * correct executor.
  */
 class GithubLocalCache(
-    private val repoDao: RepoDao,
-    private val ioExecutor: Executor
+        private val repoDao: RepoDao,
+        private val ioExecutor: Executor
 ) {
 
     /**
@@ -47,7 +47,7 @@ class GithubLocalCache(
      * any characters between the words.
      * @param name repository name
      */
-    fun reposByName(name: String): LiveData<List<Repo>> {
+    fun reposByName(name: String): DataSource.Factory<Int, Repo> {
         // appending '%' so we can allow other characters to be before and after the query string
         val query = "%${name.replace(' ', '%')}%"
         return repoDao.reposByName(query)
