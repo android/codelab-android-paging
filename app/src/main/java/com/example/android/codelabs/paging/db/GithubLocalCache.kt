@@ -16,9 +16,8 @@
 
 package com.example.android.codelabs.paging.db
 
-import android.arch.lifecycle.LiveData
-import android.arch.paging.DataSource
 import android.util.Log
+import androidx.lifecycle.LiveData
 import com.example.android.codelabs.paging.model.Repo
 import java.util.concurrent.Executor
 

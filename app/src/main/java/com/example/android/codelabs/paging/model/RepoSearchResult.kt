@@ -16,7 +16,7 @@
 
 package com.example.android.codelabs.paging.model
 
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 
 /**
  * RepoSearchResult from a search, which contains LiveData<List<Repo>> holding query data,

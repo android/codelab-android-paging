@@ -16,23 +16,24 @@
 
 package com.example.android.codelabs.paging.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import com.example.android.codelabs.paging.R
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.android.codelabs.paging.Injection
+import com.example.android.codelabs.paging.R
 import com.example.android.codelabs.paging.model.Repo
-import kotlinx.android.synthetic.main.activity_search_repositories.*
-
+import kotlinx.android.synthetic.main.activity_search_repositories.emptyList
+import kotlinx.android.synthetic.main.activity_search_repositories.list
+import kotlinx.android.synthetic.main.activity_search_repositories.search_repo
 
 class SearchRepositoriesActivity : AppCompatActivity() {
 
@@ -119,7 +120,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     private fun setupScrollListener() {
         val layoutManager = list.layoutManager as LinearLayoutManager
         list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val totalItemCount = layoutManager.itemCount
                 val visibleItemCount = layoutManager.childCount

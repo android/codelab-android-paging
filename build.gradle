@@ -17,13 +17,13 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.2.21'
+    ext.kotlin_version = '1.2.51'
     repositories {
         google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0-alpha09'
+        classpath 'com.android.tools.build:gradle:3.3.0-alpha03'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -43,19 +43,21 @@ task clean(type: Delete) {
 }
 
 ext {
-    compileSdkVersion = 27
+    compileSdkVersion = 28
     minSdkVersion = 15
-    targetSdkVersion = 27
-    supportLibVersion = "27.1.0"
-    constraintLayoutVersion = "1.0.2"
-    archComponentsVersion = "1.1.1"
-    roomVersion = "1.1.0-beta1"
-    pagingVersion = "1.0.0-beta1"
+    targetSdkVersion = 28
+    appCompat = "1.0.0-beta01"
+    constraintLayoutVersion = "1.1.2"
+    design = "1.0.0-beta01"
+    pagingVersion = "2.0.0-beta01"
+    roomVersion = "2.0.0-beta01"
+    archComponentsVersion = "2.0.0-beta01"
+
+    runnerVersion = "1.1.0-alpha1"
+    espressoVersion = "3.1.0-alpha1"
+
+    junitVersion = "4.12"
+
     retrofitVersion = "2.3.0"
     okhttpLoggingInterceptorVersion = "3.9.0"
-
-    runnerVersion = "1.0.1"
-    rulesVersion = "1.0.1"
-    junitVersion = "4.12"
-    espressoVersion = "3.0.1"
 }
