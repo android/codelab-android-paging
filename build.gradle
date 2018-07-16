@@ -46,7 +46,7 @@ ext {
     compileSdkVersion = 28
     minSdkVersion = 15
     targetSdkVersion = 28
-    appCompat = "1.0.0-beta011"
+    appCompat = "1.0.0-beta01"
     constraintLayoutVersion = "1.1.2"
     design = "1.0.0-beta01"
     pagingVersion = "2.0.0-beta01"
