@@ -16,8 +16,8 @@
 
 package com.example.android.codelabs.paging.data
 
-import android.arch.paging.LivePagedListBuilder
 import android.util.Log
+import androidx.paging.LivePagedListBuilder
 import com.example.android.codelabs.paging.api.GithubService
 import com.example.android.codelabs.paging.db.GithubLocalCache
 import com.example.android.codelabs.paging.model.RepoSearchResult
