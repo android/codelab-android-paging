@@ -16,6 +16,9 @@
 
 package com.example.android.codelabs.paging.data
 
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
+import android.arch.paging.PagedList
 import android.util.Log
 import com.example.android.codelabs.paging.api.GithubService
 import com.example.android.codelabs.paging.api.searchRepos
