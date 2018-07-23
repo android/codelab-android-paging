@@ -32,6 +32,7 @@ import android.widget.Toast
 import com.example.android.codelabs.paging.R
 import com.example.android.codelabs.paging.Injection
 import com.example.android.codelabs.paging.model.Repo
+import kotlinx.android.synthetic.clearFindViewByIdCache
 import kotlinx.android.synthetic.main.activity_search_repositories.*
 
 
@@ -58,6 +59,11 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         initSearch(query)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        clearFindViewByIdCache()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(LAST_SEARCH_QUERY, viewModel.lastQueryValue())
@@ -78,22 +84,22 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     private fun initSearch(query: String) {
         search_repo.setText(query)
 
-        search_repo.setOnEditorActionListener({ _, actionId, _ ->
+        search_repo.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
                 updateRepoListFromInput()
                 true
             } else {
                 false
             }
-        })
-        search_repo.setOnKeyListener({ _, keyCode, event ->
+        }
+        search_repo.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 updateRepoListFromInput()
                 true
             } else {
                 false
             }
-        })
+        }
     }
 
     private fun updateRepoListFromInput() {

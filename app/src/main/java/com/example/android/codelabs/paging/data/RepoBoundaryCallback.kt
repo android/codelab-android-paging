@@ -16,9 +16,6 @@
 
 package com.example.android.codelabs.paging.data
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.arch.paging.PagedList
 import android.util.Log
 import com.example.android.codelabs.paging.api.GithubService
 import com.example.android.codelabs.paging.api.searchRepos
@@ -71,10 +68,10 @@ class RepoBoundaryCallback(
 
         isRequestInProgress = true
         searchRepos(service, query, lastRequestedPage, NETWORK_PAGE_SIZE, { repos ->
-            cache.insert(repos, {
+            cache.insert(repos) {
                 lastRequestedPage++
                 isRequestInProgress = false
-            })
+            }
         }, { error ->
             _networkErrors.postValue(error)
             isRequestInProgress = false
