@@ -78,22 +78,22 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     private fun initSearch(query: String) {
         search_repo.setText(query)
 
-        search_repo.setOnEditorActionListener({ _, actionId, _ ->
+        search_repo.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
                 updateRepoListFromInput()
                 true
             } else {
                 false
             }
-        })
-        search_repo.setOnKeyListener({ _, keyCode, event ->
+        }
+        search_repo.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 updateRepoListFromInput()
                 true
             } else {
                 false
             }
-        })
+        }
     }
 
     private fun updateRepoListFromInput() {

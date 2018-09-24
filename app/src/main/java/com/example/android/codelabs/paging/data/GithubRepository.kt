@@ -63,10 +63,10 @@ class GithubRepository(
 
         isRequestInProgress = true
         searchRepos(service, query, lastRequestedPage, NETWORK_PAGE_SIZE, { repos ->
-            cache.insert(repos, {
+            cache.insert(repos) {
                 lastRequestedPage++
                 isRequestInProgress = false
-            })
+            }
         }, { error ->
             networkErrors.postValue(error)
             isRequestInProgress = false
