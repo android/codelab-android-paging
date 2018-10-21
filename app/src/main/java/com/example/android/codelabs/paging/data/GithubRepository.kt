@@ -16,8 +16,8 @@
 
 package com.example.android.codelabs.paging.data
 
-import android.arch.lifecycle.MutableLiveData
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import com.example.android.codelabs.paging.api.GithubService
 import com.example.android.codelabs.paging.api.searchRepos
 import com.example.android.codelabs.paging.db.GithubLocalCache
@@ -63,10 +63,10 @@ class GithubRepository(
 
         isRequestInProgress = true
         searchRepos(service, query, lastRequestedPage, NETWORK_PAGE_SIZE, { repos ->
-            cache.insert(repos, {
+            cache.insert(repos) {
                 lastRequestedPage++
                 isRequestInProgress = false
-            })
+            }
         }, { error ->
             networkErrors.postValue(error)
             isRequestInProgress = false

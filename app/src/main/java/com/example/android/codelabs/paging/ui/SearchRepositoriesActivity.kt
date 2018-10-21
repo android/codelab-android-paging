@@ -16,20 +16,18 @@
 
 package com.example.android.codelabs.paging.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import com.example.android.codelabs.paging.R
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.android.codelabs.paging.Injection
+import com.example.android.codelabs.paging.R
 import com.example.android.codelabs.paging.model.Repo
 import kotlinx.android.synthetic.main.activity_search_repositories.*
 
@@ -71,29 +69,29 @@ class SearchRepositoriesActivity : AppCompatActivity() {
             adapter.submitList(it)
         })
         viewModel.networkErrors.observe(this, Observer<String> {
-            Toast.makeText(this, "\uD83D\uDE28 Wooops ${it}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "\uD83D\uDE28 Wooops $it", Toast.LENGTH_LONG).show()
         })
     }
 
     private fun initSearch(query: String) {
         search_repo.setText(query)
 
-        search_repo.setOnEditorActionListener({ _, actionId, _ ->
+        search_repo.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
                 updateRepoListFromInput()
                 true
             } else {
                 false
             }
-        })
-        search_repo.setOnKeyListener({ _, keyCode, event ->
+        }
+        search_repo.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 updateRepoListFromInput()
                 true
             } else {
                 false
             }
-        })
+        }
     }
 
     private fun updateRepoListFromInput() {
@@ -117,9 +115,9 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     }
 
     private fun setupScrollListener() {
-        val layoutManager = list.layoutManager as LinearLayoutManager
-        list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+        val layoutManager = list.layoutManager as androidx.recyclerview.widget.LinearLayoutManager
+        list.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val totalItemCount = layoutManager.itemCount
                 val visibleItemCount = layoutManager.childCount

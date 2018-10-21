@@ -16,9 +16,8 @@
 
 package com.example.android.codelabs.paging.db
 
-import android.arch.lifecycle.LiveData
-import android.arch.paging.DataSource
 import android.util.Log
+import androidx.lifecycle.LiveData
 import com.example.android.codelabs.paging.model.Repo
 import java.util.concurrent.Executor
 
@@ -34,7 +33,7 @@ class GithubLocalCache(
     /**
      * Insert a list of repos in the database, on a background thread.
      */
-    fun insert(repos: List<Repo>, insertFinished: ()-> Unit) {
+    fun insert(repos: List<Repo>, insertFinished: () -> Unit) {
         ioExecutor.execute {
             Log.d("GithubLocalCache", "inserting ${repos.size} repos")
             repoDao.insert(repos)

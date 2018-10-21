@@ -49,7 +49,8 @@ fun searchRepos(
         page: Int,
         itemsPerPage: Int,
         onSuccess: (repos: List<Repo>) -> Unit,
-        onError: (error: String) -> Unit) {
+        onError: (error: String) -> Unit
+) {
     Log.d(TAG, "query: $query, page: $page, itemsPerPage: $itemsPerPage")
 
     val apiQuery = query + IN_QUALIFIER
@@ -85,9 +86,11 @@ interface GithubService {
      * Get repos ordered by stars.
      */
     @GET("search/repositories?sort=stars")
-    fun searchRepos(@Query("q") query: String,
-                    @Query("page") page: Int,
-                    @Query("per_page") itemsPerPage: Int): Call<RepoSearchResponse>
+    fun searchRepos(
+            @Query("q") query: String,
+            @Query("page") page: Int,
+            @Query("per_page") itemsPerPage: Int
+    ): Call<RepoSearchResponse>
 
 
     companion object {
