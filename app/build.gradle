@@ -27,7 +27,7 @@ android {
         targetSdkVersion rootProject.targetSdkVersion
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -38,19 +38,19 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    implementation "com.android.support:appcompat-v7:$supportLibVersion"
-    implementation "com.android.support.constraint:constraint-layout:$constraintLayoutVersion"
-    implementation "com.android.support:design:$supportLibVersion"
+    implementation fileTree(dir: 'libs')
+    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "androidx.appcompat:appcompat:$supportLibVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
+    implementation "com.google.android.material:material:$supportLibVersion"
 
     // architecture components
-    implementation "android.arch.lifecycle:extensions:$archComponentsVersion"
-    implementation "android.arch.lifecycle:runtime:$archComponentsVersion"
-    implementation "android.arch.persistence.room:runtime:$roomVersion"
-    implementation "android.arch.paging:runtime:$pagingVersion"
-    kapt "android.arch.lifecycle:compiler:$archComponentsVersion"
-    kapt "android.arch.persistence.room:compiler:$roomVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$archComponentsVersion"
+    implementation "androidx.lifecycle:lifecycle-runtime:$archComponentsVersion"
+    implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.paging:paging-runtime:$pagingVersion"
+    kapt "androidx.lifecycle:lifecycle-compiler:$archComponentsVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
 
     // retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
@@ -60,6 +60,6 @@ dependencies {
 
     // testing
     testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "com.android.support.test:runner:$runnerVersion"
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
+    androidTestImplementation "androidx.test:runner:$runnerVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
 }
