@@ -44,12 +44,13 @@ private const val IN_QUALIFIER = "in:name,description"
  * @param onError function that defines how to handle request failure
  */
 fun searchRepos(
-        service: GithubService,
-        query: String,
-        page: Int,
-        itemsPerPage: Int,
-        onSuccess: (repos: List<Repo>) -> Unit,
-        onError: (error: String) -> Unit) {
+    service: GithubService,
+    query: String,
+    page: Int,
+    itemsPerPage: Int,
+    onSuccess: (repos: List<Repo>) -> Unit,
+    onError: (error: String) -> Unit
+) {
     Log.d(TAG, "query: $query, page: $page, itemsPerPage: $itemsPerPage")
 
     val apiQuery = query + IN_QUALIFIER
@@ -62,8 +63,8 @@ fun searchRepos(
                 }
 
                 override fun onResponse(
-                        call: Call<RepoSearchResponse>?,
-                        response: Response<RepoSearchResponse>
+                    call: Call<RepoSearchResponse>?,
+                    response: Response<RepoSearchResponse>
                 ) {
                     Log.d(TAG, "got a response $response")
                     if (response.isSuccessful) {
@@ -85,10 +86,11 @@ interface GithubService {
      * Get repos ordered by stars.
      */
     @GET("search/repositories?sort=stars")
-    fun searchRepos(@Query("q") query: String,
-                    @Query("page") page: Int,
-                    @Query("per_page") itemsPerPage: Int): Call<RepoSearchResponse>
-
+    fun searchRepos(
+        @Query("q") query: String,
+        @Query("page") page: Int,
+        @Query("per_page") itemsPerPage: Int
+    ): Call<RepoSearchResponse>
 
     companion object {
         private const val BASE_URL = "https://api.github.com/"
