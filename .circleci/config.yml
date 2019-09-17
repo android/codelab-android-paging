@@ -25,6 +25,9 @@ jobs:
             - ~/.gradle/caches
             - ~/.gradle/wrapper
       - run:
+          name: Run Detekt
+          command: ./gradlew detekt
+      - run:
           name: Run Ktlint
           command: ./gradlew ktlint
       - run:
