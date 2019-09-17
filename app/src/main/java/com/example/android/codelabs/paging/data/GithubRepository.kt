@@ -16,10 +16,9 @@
 
 package com.example.android.codelabs.paging.data
 
+import androidx.paging.LivePagedListBuilder
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.example.android.codelabs.paging.api.GithubService
-import com.example.android.codelabs.paging.api.searchRepos
 import com.example.android.codelabs.paging.db.GithubLocalCache
 import com.example.android.codelabs.paging.model.RepoSearchResult
 
@@ -31,49 +30,31 @@ class GithubRepository(
     private val cache: GithubLocalCache
 ) {
 
-    // keep the last requested page. When the request is successful, increment the page number.
-    private var lastRequestedPage = 1
-
-    // LiveData of network errors.
-    private val networkErrors = MutableLiveData<String>()
-
-    // avoid triggering multiple requests in the same time
-    private var isRequestInProgress = false
-
     /**
      * Search repositories whose names match the query.
      */
     fun search(query: String): RepoSearchResult {
         Log.d("GithubRepository", "New query: $query")
-        lastRequestedPage = 1
-        requestAndSaveData(query)
 
-        // Get data from the local cache
-        val data = cache.reposByName(query)
+        // Get data source factory from the local cache
+        val dataSourceFactory = cache.reposByName(query)
 
+        // every new query creates a new BoundaryCallback
+        // The BoundaryCallback will observe when the user reaches to the edges of
+        // the list and update the database with extra data
+        val boundaryCallback = RepoBoundaryCallback(query, service, cache)
+        val networkErrors = boundaryCallback.networkErrors
+
+        // Get the paged list
+        val data = LivePagedListBuilder(dataSourceFactory, DATABASE_PAGE_SIZE)
+                .setBoundaryCallback(boundaryCallback)
+                .build()
+
+        // Get the network errors exposed by the boundary callback
         return RepoSearchResult(data, networkErrors)
     }
 
-    fun requestMore(query: String) {
-        requestAndSaveData(query)
-    }
-
-    private fun requestAndSaveData(query: String) {
-        if (isRequestInProgress) return
-
-        isRequestInProgress = true
-        searchRepos(service, query, lastRequestedPage, NETWORK_PAGE_SIZE, { repos ->
-            cache.insert(repos) {
-                lastRequestedPage++
-                isRequestInProgress = false
-            }
-        }, { error ->
-            networkErrors.postValue(error)
-            isRequestInProgress = false
-        })
-    }
-
     companion object {
-        private const val NETWORK_PAGE_SIZE = 50
+        private const val DATABASE_PAGE_SIZE = 20
     }
 }
