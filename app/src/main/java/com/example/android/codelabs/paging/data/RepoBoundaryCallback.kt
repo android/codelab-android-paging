@@ -30,9 +30,9 @@ import com.example.android.codelabs.paging.model.Repo
  * the database cannot provide any more data.
  **/
 class RepoBoundaryCallback(
-        private val query: String,
-        private val service: GithubService,
-        private val cache: GithubLocalCache
+    private val query: String,
+    private val service: GithubService,
+    private val cache: GithubLocalCache
 ) : PagedList.BoundaryCallback<Repo>() {
 
     companion object {

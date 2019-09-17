@@ -38,6 +38,8 @@ allprojects {
     }
 }
 
+apply from: './config/quality/quality.gradle'
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

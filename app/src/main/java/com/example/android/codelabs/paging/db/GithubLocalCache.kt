@@ -26,8 +26,8 @@ import java.util.concurrent.Executor
  * correct executor.
  */
 class GithubLocalCache(
-        private val repoDao: RepoDao,
-        private val ioExecutor: Executor
+    private val repoDao: RepoDao,
+    private val ioExecutor: Executor
 ) {
 
     /**

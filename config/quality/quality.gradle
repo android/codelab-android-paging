@@ -1,0 +1,37 @@
+/**
+ * Set up ktlint to check the style of Kotlin files
+ * To run ktlint
+ * ./gradlew ktlint
+ */
+configurations {
+    ktlint
+    detekt
+}
+
+dependencies {
+    ktlint "com.pinterest:ktlint:0.33.0"
+    detekt 'io.gitlab.arturbosch.detekt:detekt-cli:1.0.0-RC12'
+}
+
+def reportsDir = "$project.rootDir/build/reports"
+
+task ktlint(type: JavaExec, group: "verification") {
+    description = "Check Kotlin code style."
+    classpath = configurations.ktlint
+    main = "com.pinterest.ktlint.Main"
+    args "--reporter=html,artifact=me.cassiano:ktlint-html-reporter:0.2.3,output=$reportsDir/ktlint/ktlint.html", "**/src/main/java/**/*.kt",  "!**/src/**/*Test*.kt"
+}
+
+def qualityConfigDir = "$project.rootDir/config/quality"
+
+task detekt(type: JavaExec) {
+    description = "Analyze your kotlin code with detekt"
+    main = "io.gitlab.arturbosch.detekt.cli.Main"
+    classpath = configurations.detekt
+    def input = "$projectDir"
+    def config = "$qualityConfigDir/detekt/detekt-config.yml"
+    def filters = ".*/resources/.*,.*/build/.*,.*test.*"
+    def reports = "html:build/reports/detekt/detekt.html"
+    def params = [ '-i', input, '-f', filters, '-c', config, '-r', reports ]
+    args(params)
+}

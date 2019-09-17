@@ -1,0 +1,39 @@
+version: 2.1
+
+references:
+  cache_key: &cache_key
+    key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+
+jobs:
+  build:
+    working_directory: ~/android-paging
+    docker:
+      - image: circleci/android:api-28
+    environment:
+      GRADLE_OPTS: -Xmx4g -Dorg.gradle.daemon=false
+      JVM_OPTS: -Xmx4g
+    steps:
+      - checkout
+      - restore_cache:
+          <<: *cache_key
+      - run:
+          name: Download Dependencies
+          command: ./gradlew dependencies
+      - save_cache:
+          <<: *cache_key
+          paths:
+            - ~/.gradle/caches
+            - ~/.gradle/wrapper
+      - run:
+          name: Run Ktlint
+          command: ./gradlew ktlint
+      - run:
+          name: Run Lint
+          command: ./gradlew lintDebug
+      - store_artifacts:
+          path: app/build/reports
+          destination: quality_reports
+      - store_artifacts:
+          name: Quality Reports
+          path: build/reports
+          destination: quality_reports
