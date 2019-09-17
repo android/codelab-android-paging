@@ -26,7 +26,7 @@ import com.example.android.codelabs.paging.model.Repo
 import com.example.android.codelabs.paging.model.RepoSearchResult
 
 /**
- * ViewModel for the [SearchRepositoriesActivity] screen.
+ * ViewModel for the [SearchRepositoriesFragment] screen.
  * The ViewModel works with the [GithubRepository] to get the data.
  */
 class SearchRepositoriesViewModel(private val repository: GithubRepository) : ViewModel() {
