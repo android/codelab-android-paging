@@ -16,18 +16,17 @@
 
 package com.example.android.codelabs.paging.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.example.android.codelabs.paging.data.GithubRepository
-import com.example.android.codelabs.paging.model.Repo
 import com.example.android.codelabs.paging.model.RepoSearchResult
+import kotlinx.coroutines.*
 
 /**
  * ViewModel for the [SearchRepositoriesActivity] screen.
  * The ViewModel works with the [GithubRepository] to get the data.
  */
+@ExperimentalCoroutinesApi
+@FlowPreview
 class SearchRepositoriesViewModel(private val repository: GithubRepository) : ViewModel() {
 
     companion object {
@@ -35,13 +34,11 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
     }
 
     private val queryLiveData = MutableLiveData<String>()
-    private val repoResult: LiveData<RepoSearchResult> = Transformations.map(queryLiveData) {
-        repository.search(it)
-    }
-
-    val repos: LiveData<List<Repo>> = Transformations.switchMap(repoResult) { it -> it.data }
-    val networkErrors: LiveData<String> = Transformations.switchMap(repoResult) { it ->
-        it.networkErrors
+    val repoResult: LiveData<RepoSearchResult> = Transformations.switchMap(queryLiveData) {
+        liveData<RepoSearchResult> {
+            val repos = repository.search(it).asLiveData(Dispatchers.Main)
+            emitSource(repos)
+        }
     }
 
     /**
@@ -55,7 +52,9 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
         if (visibleItemCount + lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
             val immutableQuery = lastQueryValue()
             if (immutableQuery != null) {
-                repository.requestMore(immutableQuery)
+                viewModelScope.launch {
+                    repository.requestMore(immutableQuery)
+                }
             }
         }
     }
