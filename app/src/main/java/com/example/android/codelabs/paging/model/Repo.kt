@@ -33,9 +33,4 @@ data class Repo(
     @field:SerializedName("stargazers_count") val stars: Int,
     @field:SerializedName("forks_count") val forks: Int,
     @field:SerializedName("language") val language: String?
-){
-
-    override fun toString(): String {
-        return "Repo(name='$name', stars=$stars)"
-    }
-}
+)
