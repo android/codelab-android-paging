@@ -17,19 +17,21 @@
 package com.example.android.codelabs.paging.data
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.example.android.codelabs.paging.api.GithubService
 import com.example.android.codelabs.paging.api.searchRepos
-import com.example.android.codelabs.paging.db.GithubLocalCache
+import com.example.android.codelabs.paging.model.Repo
 import com.example.android.codelabs.paging.model.RepoSearchResult
 
 /**
  * Repository class that works with local and remote data sources.
  */
-class GithubRepository(
-    private val service: GithubService,
-    private val cache: GithubLocalCache
-) {
+class GithubRepository(private val service: GithubService) {
+
+    // keep the list of responses
+    private val inMemoryCache = MutableLiveData<List<Repo>>()
 
     // keep the last requested page. When the request is successful, increment the page number.
     private var lastRequestedPage = 1
@@ -48,8 +50,8 @@ class GithubRepository(
         lastRequestedPage = 1
         requestAndSaveData(query)
 
-        // Get data from the local cache
-        val data = cache.reposByName(query)
+        // Get data from the in memory cache
+        val data = reposByName(query)
 
         return RepoSearchResult(data, networkErrors)
     }
@@ -63,14 +65,31 @@ class GithubRepository(
 
         isRequestInProgress = true
         searchRepos(service, query, lastRequestedPage, NETWORK_PAGE_SIZE, { repos ->
-            cache.insert(repos) {
-                lastRequestedPage++
-                isRequestInProgress = false
-            }
+            // add the new result list to the existing list
+            val allResults = mutableListOf<Repo>()
+            inMemoryCache.value?.let { allResults.addAll(it) }
+            allResults.addAll(repos)
+
+            inMemoryCache.postValue(allResults)
+            lastRequestedPage++
+            isRequestInProgress = false
         }, { error ->
             networkErrors.postValue(error)
             isRequestInProgress = false
         })
+    }
+
+    private fun reposByName(query: String): LiveData<List<Repo>> {
+        return Transformations.switchMap(inMemoryCache) { repos ->
+            // from the in memory cache select only the repos whose name or description matches
+            // the query. Then order the results.
+            val filteredList = repos.filter {
+                it.name.contains(query, true) ||
+                        (it.description != null && it.description.contains(query, true))
+            }.sortedWith(compareByDescending<Repo> { it.stars }.thenBy { it.name })
+
+            MutableLiveData(filteredList)
+        }
     }
 
     companion object {
