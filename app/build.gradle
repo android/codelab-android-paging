@@ -42,7 +42,7 @@ dependencies {
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "androidx.appcompat:appcompat:$supportLibVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
-    implementation "com.google.android.material:material:$supportLibVersion"
+    implementation "com.google.android.material:material:$materialVersion"
 
     // architecture components
     implementation "androidx.lifecycle:lifecycle-extensions:$archComponentsVersion"
