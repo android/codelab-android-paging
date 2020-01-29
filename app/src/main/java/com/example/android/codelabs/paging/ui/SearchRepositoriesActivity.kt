@@ -28,9 +28,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.android.codelabs.paging.Injection
 import com.example.android.codelabs.paging.R
-import com.example.android.codelabs.paging.model.Repo
+import com.example.android.codelabs.paging.model.RepoSearchResult
 import kotlinx.android.synthetic.main.activity_search_repositories.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 class SearchRepositoriesActivity : AppCompatActivity() {
 
     private lateinit var viewModel: SearchRepositoriesViewModel
@@ -62,13 +66,13 @@ class SearchRepositoriesActivity : AppCompatActivity() {
 
     private fun initAdapter() {
         list.adapter = adapter
-        viewModel.repos.observe(this, Observer<List<Repo>> {
-            Log.d("Activity", "list: ${it?.size}")
-            showEmptyList(it?.size == 0)
-            adapter.submitList(it)
-        })
-        viewModel.networkErrors.observe(this, Observer<String> {
-            Toast.makeText(this, "\uD83D\uDE28 Wooops $it", Toast.LENGTH_LONG).show()
+        viewModel.repoResult.observe(this, Observer<RepoSearchResult> {
+            Log.d("Activity", "list: ${it.data.size}")
+            showEmptyList(it.data.isEmpty())
+            adapter.submitList(it.data)
+            it.networkErrors?.let {
+                Toast.makeText(this, "\uD83D\uDE28 Wooops $it", Toast.LENGTH_LONG).show()
+            }
         })
     }
 

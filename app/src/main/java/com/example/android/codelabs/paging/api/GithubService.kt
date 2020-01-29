@@ -17,12 +17,10 @@
 package com.example.android.codelabs.paging.api
 
 import android.util.Log
-import com.example.android.codelabs.paging.model.Repo
+import com.example.android.codelabs.paging.model.RepoSearchResult
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level
-import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -38,44 +36,30 @@ private const val IN_QUALIFIER = "in:name,description"
  * @param query searchRepo keyword
  * @param page request page index
  * @param itemsPerPage number of repositories to be returned by the Github API per page
- *
- * The result of the request is handled by the implementation of the functions passed as params
- * @param onSuccess function that defines how to handle the list of repos received
- * @param onError function that defines how to handle request failure
  */
-fun searchRepos(
-    service: GithubService,
-    query: String,
-    page: Int,
-    itemsPerPage: Int,
-    onSuccess: (repos: List<Repo>) -> Unit,
-    onError: (error: String) -> Unit
-) {
+suspend fun searchRepos(
+        service: GithubService,
+        query: String,
+        page: Int,
+        itemsPerPage: Int
+): RepoSearchResult {
     Log.d(TAG, "query: $query, page: $page, itemsPerPage: $itemsPerPage")
 
     val apiQuery = query + IN_QUALIFIER
 
-    service.searchRepos(apiQuery, page, itemsPerPage).enqueue(
-            object : Callback<RepoSearchResponse> {
-                override fun onFailure(call: Call<RepoSearchResponse>?, t: Throwable) {
-                    Log.d(TAG, "fail to get data")
-                    onError(t.message ?: "unknown error")
-                }
-
-                override fun onResponse(
-                    call: Call<RepoSearchResponse>?,
-                    response: Response<RepoSearchResponse>
-                ) {
-                    Log.d(TAG, "got a response $response")
-                    if (response.isSuccessful) {
-                        val repos = response.body()?.items ?: emptyList()
-                        onSuccess(repos)
-                    } else {
-                        onError(response.errorBody()?.string() ?: "Unknown error")
-                    }
-                }
-            }
-    )
+    val response = service.searchRepos(apiQuery, page, itemsPerPage)
+    if (response.isSuccessful) {
+        Log.d(TAG, "got a response $response")
+        if (response.isSuccessful) {
+            val repos = response.body()?.items ?: emptyList()
+            return RepoSearchResult(repos)
+        } else {
+            return RepoSearchResult(emptyList(), response.message() ?: "Unknown error")
+        }
+    } else {
+        Log.d(TAG, "fail to get data")
+        return RepoSearchResult(emptyList(), response.message() ?: "Unknown error")
+    }
 }
 
 /**
@@ -86,11 +70,11 @@ interface GithubService {
      * Get repos ordered by stars.
      */
     @GET("search/repositories?sort=stars")
-    fun searchRepos(
-        @Query("q") query: String,
-        @Query("page") page: Int,
-        @Query("per_page") itemsPerPage: Int
-    ): Call<RepoSearchResponse>
+    suspend fun searchRepos(
+            @Query("q") query: String,
+            @Query("page") page: Int,
+            @Query("per_page") itemsPerPage: Int
+    ): Response<RepoSearchResponse>
 
     companion object {
         private const val BASE_URL = "https://api.github.com/"
