@@ -34,9 +34,9 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
     }
 
     private val queryLiveData = MutableLiveData<String>()
-    val repoResult: LiveData<RepoSearchResult> = Transformations.switchMap(queryLiveData) {
-        liveData<RepoSearchResult> {
-            val repos = repository.search(it).asLiveData(Dispatchers.Main)
+    val repoResult: LiveData<RepoSearchResult> =  queryLiveData.switchMap {
+        liveData {
+            val repos = repository.getSearchResultStream(it).asLiveData(Dispatchers.Main)
             emitSource(repos)
         }
     }

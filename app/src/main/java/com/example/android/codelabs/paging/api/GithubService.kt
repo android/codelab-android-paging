@@ -26,6 +26,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+import java.io.IOException
 
 private const val TAG = "GithubService"
 private const val IN_QUALIFIER = "in:name,description"
@@ -54,11 +55,11 @@ suspend fun searchRepos(
             val repos = response.body()?.items ?: emptyList()
             return RepoSearchResult(repos)
         } else {
-            return RepoSearchResult(emptyList(), response.message() ?: "Unknown error")
+            return RepoSearchResult(emptyList(), IOException(response.message() ?: "Unknown error"))
         }
     } else {
         Log.d(TAG, "fail to get data")
-        return RepoSearchResult(emptyList(), response.message() ?: "Unknown error")
+        return RepoSearchResult(emptyList(), IOException(response.message() ?: "Unknown error"))
     }
 }
 
