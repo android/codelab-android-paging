@@ -34,8 +34,12 @@ import kotlinx.coroutines.flow.asFlow
 @ExperimentalCoroutinesApi
 class GithubRepository(private val service: GithubService) {
 
-    // keep the list of responses
-    private val inMemoryCache = ConflatedBroadcastChannel<RepoSearchResult>()
+    // keep the list of all results received
+    private val inMemoryCache = mutableListOf<Repo>()
+
+    // keep channel of results. The channel allows us to broadcast updates so
+    // the subscriber will have the latest data
+    private val searchResults = ConflatedBroadcastChannel<RepoSearchResult>()
 
     // keep the last requested page. When the request is successful, increment the page number.
     private var lastRequestedPage = 1
@@ -44,17 +48,15 @@ class GithubRepository(private val service: GithubService) {
     private var isRequestInProgress = false
 
     /**
-     * Search repositories whose names match the query.
+     * Search repositories whose names match the query, exposed as a stream of data that will emit
+     * every time we get more data from the network.
      */
-    suspend fun search(query: String): Flow<RepoSearchResult> {
+    suspend fun getSearchResultStream(query: String): Flow<RepoSearchResult> {
         Log.d("GithubRepository", "New query: $query")
         lastRequestedPage = 1
         requestAndSaveData(query)
 
-        // Get data from the in memory cache
-        val data = reposByName(query)
-        inMemoryCache.offer(RepoSearchResult(data))
-        return inMemoryCache.asFlow()
+        return searchResults.asFlow()
     }
 
     suspend fun requestMore(query: String) {
@@ -68,12 +70,16 @@ class GithubRepository(private val service: GithubService) {
         val apiResponse = searchRepos(service, query, lastRequestedPage, NETWORK_PAGE_SIZE)
         Log.d("GithubRepository", "response $apiResponse")
         // add the new result list to the existing list
-        val allResults = mutableListOf<Repo>()
-        inMemoryCache.valueOrNull?.let { allResults.addAll(it.data) }
-        allResults.addAll(apiResponse.data)
-
-        inMemoryCache.offer(RepoSearchResult(allResults, apiResponse.networkErrors))
-
+        when (apiResponse) {
+            is RepoSearchResult.Success -> {
+                inMemoryCache.addAll(apiResponse.data)
+                val reposByName = reposByName(query)
+                searchResults.offer(RepoSearchResult.Success(reposByName))
+            }
+            is RepoSearchResult.Error -> {
+                searchResults.offer(RepoSearchResult.Error(apiResponse.error))
+            }
+        }
         lastRequestedPage++
         isRequestInProgress = false
     }
@@ -81,8 +87,7 @@ class GithubRepository(private val service: GithubService) {
     private fun reposByName(query: String): List<Repo> {
         // from the in memory cache select only the repos whose name or description matches
         // the query. Then order the results.
-        val result = inMemoryCache.valueOrNull ?: return emptyList()
-        return result.data.filter {
+        return inMemoryCache.filter {
             it.name.contains(query, true) ||
                     (it.description != null && it.description.contains(query, true))
         }.sortedWith(compareByDescending<Repo> { it.stars }.thenBy { it.name })
