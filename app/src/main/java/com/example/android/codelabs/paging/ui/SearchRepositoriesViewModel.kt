@@ -16,12 +16,7 @@
 
 package com.example.android.codelabs.paging.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -49,7 +44,7 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
      */
     fun searchRepo(queryString: String): Flow<PagingData<Repo>> {
         val result = lastSearchResult
-        if(queryString == lastQueryValue && result != null){
+        if (queryString == lastQueryValue && result != null) {
             return result
         }
         lastQueryValue = queryString
