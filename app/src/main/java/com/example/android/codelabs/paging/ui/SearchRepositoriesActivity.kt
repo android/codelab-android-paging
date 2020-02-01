@@ -32,7 +32,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.example.android.codelabs.paging.Injection
 import com.example.android.codelabs.paging.databinding.ActivitySearchRepositoriesBinding
-import com.example.android.codelabs.paging.model.RepoSearchResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
@@ -77,19 +76,22 @@ class SearchRepositoriesActivity : AppCompatActivity() {
                 loadStateAdapter
         )
         viewModel.repoResult.observe(this) { result ->
-            when (result) {
-                is RepoSearchResult.Success -> {
-                    showEmptyList(result.data.isEmpty())
-                    adapter.submitList(result.data)
-                }
-                is RepoSearchResult.Error -> {
-                    Toast.makeText(
-                            this,
-                            "\uD83D\uDE28 Wooops $result.message}",
-                            Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
+            //adapter.collectFrom(result)
+            // TODO how to handle empty list?
+            // TODO how to handle error?
+//            when (result) {
+//                is RepoSearchResult.Success -> {
+//                    showEmptyList(result.data.isEmpty())
+//
+//                }
+//                is RepoSearchResult.Error -> {
+//                    Toast.makeText(
+//                            this,
+//                            "\uD83D\uDE28 Wooops $result.message}",
+//                            Toast.LENGTH_LONG
+//                    ).show()
+//                }
+//            }
         }
 
         viewModel.repoLoadStatus.observe(this) { loadState ->
@@ -124,7 +126,8 @@ class SearchRepositoriesActivity : AppCompatActivity() {
             if (it.isNotEmpty()) {
                 binding.list.scrollToPosition(0)
                 viewModel.searchRepo(it.toString())
-                adapter.submitList(null)
+                // TODO how to clear the list
+//                adapter.submitList(null)
             }
         }
     }

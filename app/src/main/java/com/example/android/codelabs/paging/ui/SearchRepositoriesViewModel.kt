@@ -16,9 +16,17 @@
 
 package com.example.android.codelabs.paging.ui
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.android.codelabs.paging.data.GithubRepository
-import com.example.android.codelabs.paging.model.RepoSearchResult
+import com.example.android.codelabs.paging.model.Repo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -35,22 +43,13 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
         private const val VISIBLE_THRESHOLD = 5
     }
 
-    private val _repoLoadStatus = MutableLiveData<LoadState>()
-    val repoLoadStatus: LiveData<LoadState>
-        get() = _repoLoadStatus.distinctUntilChanged()
-
     private val queryLiveData = MutableLiveData<String>()
-    val repoResult: LiveData<RepoSearchResult> = queryLiveData.switchMap { queryString ->
+    val repoResult: LiveData<PagingData<Repo>> = queryLiveData.switchMap { queryString ->
         liveData {
-            val repos = repository.getSearchResultStream(queryString).asLiveData(Dispatchers.Main)
+            val repos = repository.getSearchResultStream(queryString)
+                    .cachedIn(viewModelScope)
+                    .asLiveData(Dispatchers.Main)
             emitSource(repos)
-        }.map {
-            // update the load status based on the result type
-            when (it) {
-                is RepoSearchResult.Success -> _repoLoadStatus.value = LoadState.Done
-                is RepoSearchResult.Error -> _repoLoadStatus.value = LoadState.Error(it.error)
-            }
-            it
         }
     }
 
@@ -65,19 +64,9 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
         if (visibleItemCount + lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
             val immutableQuery = queryLiveData.value
             if (immutableQuery != null) {
-                _repoLoadStatus.postValue(LoadState.Loading)
                 viewModelScope.launch {
                     repository.requestMore(immutableQuery)
                 }
-            }
-        }
-    }
-
-    fun retry() {
-        queryLiveData.value?.let { query ->
-            _repoLoadStatus.value = LoadState.Loading
-            viewModelScope.launch {
-                repository.retry(query)
             }
         }
     }
