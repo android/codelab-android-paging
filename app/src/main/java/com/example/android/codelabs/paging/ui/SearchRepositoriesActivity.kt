@@ -26,19 +26,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.example.android.codelabs.paging.Injection
-import com.example.android.codelabs.paging.R
+import com.example.android.codelabs.paging.databinding.ActivitySearchRepositoriesBinding
 import com.example.android.codelabs.paging.model.Repo
-import kotlinx.android.synthetic.main.activity_search_repositories.*
 
 class SearchRepositoriesActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivitySearchRepositoriesBinding
     private lateinit var viewModel: SearchRepositoriesViewModel
     private val adapter = ReposAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search_repositories)
+        binding = ActivitySearchRepositoriesBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         // get the view model
         viewModel = ViewModelProvider(this, Injection.provideViewModelFactory())
@@ -46,7 +51,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
 
         // add dividers between RecyclerView's row items
         val decoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-        list.addItemDecoration(decoration)
+        binding.list.addItemDecoration(decoration)
         setupScrollListener()
 
         initAdapter()
@@ -61,7 +66,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     }
 
     private fun initAdapter() {
-        list.adapter = adapter
+        binding.list.adapter = adapter
         viewModel.repos.observe(this, Observer<List<Repo>> {
             Log.d("Activity", "list: ${it?.size}")
             showEmptyList(it?.size == 0)
@@ -73,9 +78,9 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     }
 
     private fun initSearch(query: String) {
-        search_repo.setText(query)
+        binding.searchRepo.setText(query)
 
-        search_repo.setOnEditorActionListener { _, actionId, _ ->
+        binding.searchRepo.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_GO) {
                 updateRepoListFromInput()
                 true
@@ -83,7 +88,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
                 false
             }
         }
-        search_repo.setOnKeyListener { _, keyCode, event ->
+        binding.searchRepo.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 updateRepoListFromInput()
                 true
@@ -94,9 +99,9 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     }
 
     private fun updateRepoListFromInput() {
-        search_repo.text.trim().let {
+        binding.searchRepo.text.trim().let {
             if (it.isNotEmpty()) {
-                list.scrollToPosition(0)
+                binding.list.scrollToPosition(0)
                 viewModel.searchRepo(it.toString())
                 adapter.submitList(null)
             }
@@ -105,18 +110,18 @@ class SearchRepositoriesActivity : AppCompatActivity() {
 
     private fun showEmptyList(show: Boolean) {
         if (show) {
-            emptyList.visibility = View.VISIBLE
-            list.visibility = View.GONE
+            binding.emptyList.visibility = View.VISIBLE
+            binding.list.visibility = View.GONE
         } else {
-            emptyList.visibility = View.GONE
-            list.visibility = View.VISIBLE
+            binding.emptyList.visibility = View.GONE
+            binding.list.visibility = View.VISIBLE
         }
     }
 
     private fun setupScrollListener() {
-        val layoutManager = list.layoutManager as androidx.recyclerview.widget.LinearLayoutManager
-        list.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+        val layoutManager = binding.list.layoutManager as LinearLayoutManager
+        binding.list.addOnScrollListener(object : OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val totalItemCount = layoutManager.itemCount
                 val visibleItemCount = layoutManager.childCount
