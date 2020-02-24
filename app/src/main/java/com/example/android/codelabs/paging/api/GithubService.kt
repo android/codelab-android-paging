@@ -53,13 +53,13 @@ suspend fun searchRepos(
         Log.d(TAG, "got a response $response")
         if (response.isSuccessful) {
             val repos = response.body()?.items ?: emptyList()
-            return RepoSearchResult(repos)
+            return RepoSearchResult.Success(repos)
         } else {
-            return RepoSearchResult(emptyList(), IOException(response.message() ?: "Unknown error"))
+            return RepoSearchResult.Error(IOException(response.message() ?: "Unknown error"))
         }
     } else {
         Log.d(TAG, "fail to get data")
-        return RepoSearchResult(emptyList(), IOException(response.message() ?: "Unknown error"))
+        return RepoSearchResult.Error(IOException(response.message() ?: "Unknown error"))
     }
 }
 
