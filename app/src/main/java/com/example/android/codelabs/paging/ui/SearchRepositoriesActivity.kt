@@ -17,13 +17,18 @@
 package com.example.android.codelabs.paging.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
+import androidx.paging.LoadState
+import androidx.paging.LoadType
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,6 +37,9 @@ import com.example.android.codelabs.paging.Injection
 import com.example.android.codelabs.paging.databinding.ActivitySearchRepositoriesBinding
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -40,6 +48,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySearchRepositoriesBinding
     private lateinit var viewModel: SearchRepositoriesViewModel
     private val adapter = ReposAdapter()
+    private var searchJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,37 +65,25 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         binding.list.addItemDecoration(decoration)
         setupScrollListener()
 
-        initAdapter()
+        binding.list.adapter = adapter
+        adapter.addLoadStateListener { loadType, loadState ->
+            Log.d("SearchRepositoriesActivity", "adapter load: type = $loadType state = $loadState")
+            if(loadState is LoadState.Error){
+                Toast.makeText(
+                        this,
+                        "\uD83D\uDE28 Wooops $loadState.message}",
+                        Toast.LENGTH_LONG
+                ).show()
+            }
+        }
         val query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
-        viewModel.searchRepo(query)
+        search(query)
         initSearch(query)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(LAST_SEARCH_QUERY, binding.searchRepo.text.trim().toString())
-    }
-
-    private fun initAdapter() {
-        binding.list.adapter = adapter
-        viewModel.repoResult.observe(this) { result ->
-            //adapter.collectFrom(result)
-            // TODO how to handle empty list?
-            // TODO how to handle error?
-//            when (result) {
-//                is RepoSearchResult.Success -> {
-//                    showEmptyList(result.data.isEmpty())
-//
-//                }
-//                is RepoSearchResult.Error -> {
-//                    Toast.makeText(
-//                            this,
-//                            "\uD83D\uDE28 Wooops $result.message}",
-//                            Toast.LENGTH_LONG
-//                    ).show()
-//                }
-//            }
-        }
     }
 
     private fun initSearch(query: String) {
@@ -114,9 +111,21 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         binding.searchRepo.text.trim().let {
             if (it.isNotEmpty()) {
                 binding.list.scrollToPosition(0)
-                viewModel.searchRepo(it.toString())
+                search(it.toString())
                 // TODO how to clear the list
-//                adapter.submitList(null)
+                //  might not need it because of how Paging works
+//                adapter.collectFrom(PagingData.empty())
+            }
+        }
+    }
+
+    private fun search(query: String) {
+        searchJob?.cancel()
+        searchJob = lifecycleScope.launch {
+            val result = viewModel.searchRepo(query)
+            result.collect {
+                Log.d("SearchRepositoriesActivity", "query: $query, collecting $it")
+                adapter.collectFrom(it)
             }
         }
     }
