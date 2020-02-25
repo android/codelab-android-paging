@@ -27,9 +27,9 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.android.codelabs.paging.data.GithubRepository
 import com.example.android.codelabs.paging.model.Repo
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 /**
@@ -43,26 +43,19 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
         private const val VISIBLE_THRESHOLD = 5
     }
 
-    private val queryLiveData = MutableLiveData<String>()
-    val repoResult: LiveData<PagingData<Repo>> = queryLiveData.switchMap { queryString ->
-        liveData {
-            val repos = repository.getSearchResultStream(queryString)
-                    .cachedIn(viewModelScope)
-                    .asLiveData(Dispatchers.Main)
-            emitSource(repos)
-        }
-    }
-
+    private var lastQueryValue: String? = null
     /**
      * Search a repository based on a query string.
      */
-    fun searchRepo(queryString: String) {
-        queryLiveData.postValue(queryString)
+    suspend fun searchRepo(queryString: String): Flow<PagingData<Repo>> {
+        lastQueryValue = queryString
+        return repository.getSearchResultStream(queryString)
+                .cachedIn(viewModelScope)
     }
 
     fun listScrolled(visibleItemCount: Int, lastVisibleItemPosition: Int, totalItemCount: Int) {
         if (visibleItemCount + lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
-            val immutableQuery = queryLiveData.value
+            val immutableQuery = lastQueryValue()
             if (immutableQuery != null) {
                 viewModelScope.launch {
                     repository.requestMore(immutableQuery)
@@ -70,4 +63,9 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
             }
         }
     }
+
+    /**
+     * Get the last query value.
+     */
+    fun lastQueryValue(): String? = lastQueryValue
 }
