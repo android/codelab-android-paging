@@ -30,7 +30,6 @@ import com.example.android.codelabs.paging.model.Repo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
 /**
  * ViewModel for the [SearchRepositoriesActivity] screen.
@@ -39,33 +38,23 @@ import kotlinx.coroutines.launch
 @ExperimentalCoroutinesApi
 class SearchRepositoriesViewModel(private val repository: GithubRepository) : ViewModel() {
 
-    companion object {
-        private const val VISIBLE_THRESHOLD = 5
-    }
-
+    @Volatile
     private var lastQueryValue: String? = null
+    @Volatile
+    private var lastSearchResult: Flow<PagingData<Repo>>? = null
+
     /**
      * Search a repository based on a query string.
      */
-    suspend fun searchRepo(queryString: String): Flow<PagingData<Repo>> {
-        lastQueryValue = queryString
-        return repository.getSearchResultStream(queryString)
-                .cachedIn(viewModelScope)
-    }
-
-    fun listScrolled(visibleItemCount: Int, lastVisibleItemPosition: Int, totalItemCount: Int) {
-        if (visibleItemCount + lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
-            val immutableQuery = lastQueryValue()
-            if (immutableQuery != null) {
-                viewModelScope.launch {
-                    repository.requestMore(immutableQuery)
-                }
-            }
+    fun searchRepo(queryString: String): Flow<PagingData<Repo>> {
+        val result = lastSearchResult
+        if(queryString == lastQueryValue && result != null){
+            return result
         }
+        lastQueryValue = queryString
+        val newResult = repository.getSearchResultStream(queryString)
+                .cachedIn(viewModelScope)
+        lastSearchResult = newResult
+        return newResult
     }
-
-    /**
-     * Get the last query value.
-     */
-    fun lastQueryValue(): String? = lastQueryValue
 }

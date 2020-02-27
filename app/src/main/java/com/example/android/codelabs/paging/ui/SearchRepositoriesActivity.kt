@@ -25,21 +25,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import androidx.paging.LoadState
-import androidx.paging.LoadType
-import androidx.paging.PagingData
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.example.android.codelabs.paging.Injection
 import com.example.android.codelabs.paging.databinding.ActivitySearchRepositoriesBinding
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
 class SearchRepositoriesActivity : AppCompatActivity() {
@@ -62,12 +56,11 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         // add dividers between RecyclerView's row items
         val decoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         binding.list.addItemDecoration(decoration)
-        setupScrollListener()
 
         binding.list.adapter = adapter
         adapter.addLoadStateListener { loadType, loadState ->
             Log.d("SearchRepositoriesActivity", "adapter load: type = $loadType state = $loadState")
-            if(loadState is LoadState.Error){
+            if (loadState is LoadState.Error) {
                 Toast.makeText(
                         this,
                         "\uD83D\uDE28 Wooops $loadState.message}",
@@ -119,10 +112,10 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     }
 
     private fun search(query: String) {
+        // Make sure we cancel the previous job before creating a new one
         searchJob?.cancel()
         searchJob = lifecycleScope.launch {
-            val result = viewModel.searchRepo(query)
-            result.collect {
+            viewModel.searchRepo(query).collect {
                 Log.d("SearchRepositoriesActivity", "query: $query, collecting $it")
                 adapter.collectFrom(it)
             }
@@ -137,20 +130,6 @@ class SearchRepositoriesActivity : AppCompatActivity() {
             binding.emptyList.visibility = View.GONE
             binding.list.visibility = View.VISIBLE
         }
-    }
-
-    private fun setupScrollListener() {
-        val layoutManager = binding.list.layoutManager as LinearLayoutManager
-        binding.list.addOnScrollListener(object : OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val totalItemCount = layoutManager.itemCount
-                val visibleItemCount = layoutManager.childCount
-                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-
-                viewModel.listScrolled(visibleItemCount, lastVisibleItem, totalItemCount)
-            }
-        })
     }
 
     companion object {
