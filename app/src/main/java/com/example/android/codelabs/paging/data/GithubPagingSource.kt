@@ -2,11 +2,14 @@ package com.example.android.codelabs.paging.data
 
 import androidx.paging.PagingSource
 import com.example.android.codelabs.paging.api.GithubService
-import com.example.android.codelabs.paging.api.searchRepos
+import com.example.android.codelabs.paging.api.IN_QUALIFIER
 import com.example.android.codelabs.paging.model.Repo
-import com.example.android.codelabs.paging.model.RepoSearchResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import java.io.IOException
+
+// GitHub page API is 1 based: https://developer.github.com/v3/#pagination
+private const val GITHUB_STARTING_PAGE_INDEX = 1
 
 @ExperimentalCoroutinesApi
 @FlowPreview
@@ -15,15 +18,19 @@ class GithubPagingSource(
         private val query: String
 ) : PagingSource<Int, Repo>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Repo> {
-        val position = params.key ?: 0
-        val apiResponse = searchRepos(service, query, position, GithubRepository.NETWORK_PAGE_SIZE)
-        return when(apiResponse){
-            is RepoSearchResult.Success -> LoadResult.Page(
-                    data = apiResponse.data,
-                    prevKey = position,
-                    nextKey = position + 1
+        val position = params.key ?: GITHUB_STARTING_PAGE_INDEX
+        val apiQuery = query + IN_QUALIFIER
+        val apiResponse = service.searchRepos(apiQuery, position, GithubRepository.NETWORK_PAGE_SIZE)
+        return if (apiResponse.isSuccessful) {
+            val repos = apiResponse.body()?.items ?: emptyList()
+            LoadResult.Page(
+                    data = repos,
+                    prevKey = if (position == GITHUB_STARTING_PAGE_INDEX) null else -1,
+                    // if we don't get any results, we consider that we're at the last page
+                    nextKey = if (repos.isEmpty()) null else position + 1
             )
-            is RepoSearchResult.Error -> LoadResult.Error(apiResponse.error)
+        } else {
+            LoadResult.Error(IOException(apiResponse.message()))
         }
     }
 }
