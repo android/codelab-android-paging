@@ -48,9 +48,9 @@ ext {
     targetSdkVersion = 28
     supportLibVersion = '1.1.0'
     constraintLayoutVersion = '1.1.3'
-    materialVersion = '1.0.0'
+    materialVersion = '1.1.0'
     archComponentsVersion = '2.2.0'
-    roomVersion = '2.2.3'
+    roomVersion = '2.2.4'
     pagingVersion = '2.1.0-alpha01'
     retrofitVersion = '2.6.0'
     okhttpLoggingInterceptorVersion = '4.0.0'
