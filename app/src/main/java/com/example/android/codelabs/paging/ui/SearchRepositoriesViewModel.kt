@@ -16,6 +16,7 @@
 
 package com.example.android.codelabs.paging.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -25,6 +26,7 @@ import com.example.android.codelabs.paging.model.Repo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * ViewModel for the [SearchRepositoriesActivity] screen.
@@ -36,20 +38,45 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
     @Volatile
     private var currentQueryValue: String? = null
     @Volatile
-    private var currentSearchResult: Flow<PagingData<Repo>>? = null
+    private var currentSearchResult: Flow<PagingData<UiModel>>? = null
 
     /**
      * Search a repository based on a query string.
      */
-    fun searchRepo(queryString: String): Flow<PagingData<Repo>> {
+    fun searchRepo(queryString: String): Flow<PagingData<UiModel>> {
         val lastResult = currentSearchResult
         if(queryString == currentQueryValue && lastResult != null){
             return lastResult
         }
         currentQueryValue = queryString
-        val newResult = repository.getSearchResultStream(queryString)
+        val newResult: Flow<PagingData<UiModel>> = repository.getSearchResultStream(queryString)
+                .map { pagingData -> pagingData.map { UiModel.RepoItem(it) as UiModel } }
+                .map {
+                    it.insertSeparators { before, after ->
+                        if (before == null && after is UiModel.RepoItem) {
+                            Log.d("ViewModel", "-> adding null separator")
+                            UiModel.SeparatorItem("${after.repo.stars / 10_000}0.000+ stars")
+                        }
+                        if (before is UiModel.RepoItem && after is UiModel.RepoItem
+                                && before.repo.stars / 10_000 > after.repo.stars / 10_000) {
+                            if (after.repo.stars >= 10_000) {
+                                UiModel.SeparatorItem("${after.repo.stars / 10_000}0.000+ stars")
+                            } else {
+                                UiModel.SeparatorItem("< 10.000+ stars")
+                            }
+                        } else {
+                            // no separator
+                            null
+                        }
+                    }
+                }
                 .cachedIn(viewModelScope)
         currentSearchResult = newResult
         return newResult
     }
+}
+
+sealed class UiModel {
+    data class RepoItem(val repo: Repo) : UiModel()
+    data class SeparatorItem(val description: String) : UiModel()
 }
