@@ -49,7 +49,8 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
             return result
         }
         lastQueryValue = queryString
-        val newResult: Flow<PagingData<UiModel>> = repository.getSearchResultStream(queryString)
+        val searchResult = repository.getSearchResultStream(queryString)
+        val newResult: Flow<PagingData<UiModel>> = searchResult.pagingDataFlow
                 .map { pagingData -> pagingData.map { UiModel.RepoItem(it) as UiModel } }
                 .map {
                     it.insertSeparators { before, after ->
@@ -64,6 +65,7 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
                             null
                         }
                     }
+                    it.addHeader(UiModel.HeaderItem("Total repositories: ${searchResult.totalResultCount}"))
                 }
                 .cachedIn(viewModelScope)
         lastSearchResult = newResult
@@ -74,4 +76,5 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
 sealed class UiModel {
     data class RepoItem(val repo: Repo) : UiModel()
     data class SeparatorItem(val description: String) : UiModel()
+    data class HeaderItem(val description: String) : UiModel()
 }

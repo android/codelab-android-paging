@@ -21,6 +21,7 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.android.codelabs.paging.R
+import java.lang.UnsupportedOperationException
 
 /**
  * Adapter for the list of repositories.
@@ -28,27 +29,36 @@ import com.example.android.codelabs.paging.R
 class ReposAdapter : PagingDataAdapter<UiModel, ViewHolder>(UIMODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return if(viewType == R.layout.repo_view_item) {
-            RepoViewHolder.create(parent)
-        } else {
-            SeparatorViewHolder.create(parent)
+        return when (viewType) {
+            R.layout.repo_view_item -> {
+                RepoViewHolder.create(parent)
+            }
+            R.layout.separator_view_item -> {
+                SeparatorViewHolder.create(parent)
+            }
+            R.layout.header_view_item -> {
+                HeaderViewHolder.create(parent)
+            }
+            else -> throw UnsupportedOperationException("Can't handle view type $viewType")
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when(getItem(position)){
+        return when (getItem(position)) {
             is UiModel.RepoItem -> R.layout.repo_view_item
             is UiModel.SeparatorItem -> R.layout.separator_view_item
-            null -> 0
+            is UiModel.HeaderItem -> R.layout.header_view_item
+            null -> throw UnsupportedOperationException("Can't handle null items")
         }
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val uiModel = getItem(position)
         uiModel.let {
-            when(uiModel){
+            when (uiModel) {
                 is UiModel.RepoItem -> (holder as RepoViewHolder).bind(uiModel.repo)
                 is UiModel.SeparatorItem -> (holder as SeparatorViewHolder).bind(uiModel.description)
+                is UiModel.HeaderItem -> (holder as HeaderViewHolder).bind(uiModel.description)
             }
         }
     }

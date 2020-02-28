@@ -17,7 +17,7 @@
 package com.example.android.codelabs.paging.api
 
 import android.util.Log
-import com.example.android.codelabs.paging.model.RepoSearchResult
+import com.example.android.codelabs.paging.data.RepoSearchResult
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level
@@ -53,7 +53,7 @@ suspend fun searchRepos(
         Log.d(TAG, "got a response $response")
         if (response.isSuccessful) {
             val repos = response.body()?.items ?: emptyList()
-            return RepoSearchResult.Success(repos)
+            return RepoSearchResult.Success(repos, response.body()?.total ?: 0)
         } else {
             return RepoSearchResult.Error(IOException(response.message() ?: "Unknown error"))
         }
@@ -82,7 +82,7 @@ interface GithubService {
 
         fun create(): GithubService {
             val logger = HttpLoggingInterceptor()
-            logger.level = Level.BASIC
+            logger.level = Level.BODY
 
             val client = OkHttpClient.Builder()
                     .addInterceptor(logger)

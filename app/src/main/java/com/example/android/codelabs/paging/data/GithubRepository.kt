@@ -22,6 +22,7 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataFlow
 import com.example.android.codelabs.paging.api.GithubService
 import com.example.android.codelabs.paging.model.Repo
+import com.example.android.codelabs.paging.model.SearchResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -37,13 +38,14 @@ class GithubRepository(private val service: GithubService) {
      * Search repositories whose names match the query, exposed as a stream of data that will emit
      * every time we get more data from the network.
      */
-    fun getSearchResultStream(query: String): Flow<PagingData<Repo>> {
+    fun getSearchResultStream(query: String): SearchResult {
         Log.d("GithubRepository", "New query: $query")
 
-        return PagingDataFlow(
+        val pagingSource = GithubPagingSource(service, query)
+        return SearchResult(PagingDataFlow(
                 config = PagingConfig(pageSize = NETWORK_PAGE_SIZE),
-                pagingSourceFactory = { GithubPagingSource(service, query) }
-        )
+                pagingSourceFactory = { pagingSource }
+        ), pagingSource.totalReposCount)
     }
 
     companion object {

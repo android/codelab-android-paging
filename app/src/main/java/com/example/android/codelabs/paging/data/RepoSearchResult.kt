@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.example.android.codelabs.paging.model
+package com.example.android.codelabs.paging.data
 
+import com.example.android.codelabs.paging.model.Repo
 import java.lang.Exception
 
 /**
@@ -23,6 +24,6 @@ import java.lang.Exception
  * and a String of network error state.
  */
 sealed class RepoSearchResult {
-    data class Success(val data: List<Repo>) : RepoSearchResult()
+    data class Success(val data: List<Repo>, val totalReposCount: Int) : RepoSearchResult()
     data class Error(val error: Exception) : RepoSearchResult()
 }
