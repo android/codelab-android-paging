@@ -31,6 +31,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -41,6 +42,7 @@
             android:hint="@string/search_hint"
             android:imeOptions="actionSearch"
             android:inputType="textNoSuggestions"
+            android:selectAllOnFocus="true"
             tools:text="Android"/>
     </com.google.android.material.textfield.TextInputLayout>
 
