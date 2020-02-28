@@ -25,6 +25,7 @@ import com.example.android.codelabs.paging.model.Repo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * ViewModel for the [SearchRepositoriesActivity] screen.
@@ -37,20 +38,40 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
     @Volatile
     private var lastQueryValue: String? = null
     @Volatile
-    private var lastSearchResult: Flow<PagingData<Repo>>? = null
+    private var lastSearchResult: Flow<PagingData<UiModel>>? = null
 
     /**
      * Search a repository based on a query string.
      */
-    fun searchRepo(queryString: String): Flow<PagingData<Repo>> {
+    fun searchRepo(queryString: String): Flow<PagingData<UiModel>> {
         val result = lastSearchResult
         if (queryString == lastQueryValue && result != null) {
             return result
         }
         lastQueryValue = queryString
-        val newResult = repository.getSearchResultStream(queryString)
+        val newResult: Flow<PagingData<UiModel>> = repository.getSearchResultStream(queryString)
+                .map { pagingData -> pagingData.map { UiModel.RepoItem(it) as UiModel } }
+                .map {
+                    it.insertSeparators { before, after ->
+                        if (before == null && after is UiModel.RepoItem) {
+                            UiModel.SeparatorItem("${after.repo.stars / 10_000}0.000+ stars")
+                        }
+                        if (before is UiModel.RepoItem && after is UiModel.RepoItem
+                                && before.repo.stars / 10_000 > after.repo.stars / 10_000) {
+                            UiModel.SeparatorItem("${after.repo.stars / 10_000}0.000+ stars")
+                        } else {
+                            // no separator
+                            null
+                        }
+                    }
+                }
                 .cachedIn(viewModelScope)
         lastSearchResult = newResult
         return newResult
     }
+}
+
+sealed class UiModel {
+    data class RepoItem(val repo: Repo) : UiModel()
+    data class SeparatorItem(val description: String) : UiModel()
 }
