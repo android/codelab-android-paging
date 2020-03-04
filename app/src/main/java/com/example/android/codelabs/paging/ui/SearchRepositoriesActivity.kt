@@ -117,7 +117,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         searchJob = lifecycleScope.launch {
             viewModel.searchRepo(query).collect {
                 Log.d("SearchRepositoriesActivity", "query: $query, collecting $it")
-                adapter.collectFrom(it)
+                adapter.presentData(it)
             }
         }
     }
