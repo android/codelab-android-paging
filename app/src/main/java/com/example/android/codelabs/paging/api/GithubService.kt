@@ -16,8 +16,6 @@
 
 package com.example.android.codelabs.paging.api
 
-import android.util.Log
-import com.example.android.codelabs.paging.model.RepoSearchResult
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level
@@ -26,42 +24,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
-import java.io.IOException
 
-private const val TAG = "GithubService"
-private const val IN_QUALIFIER = "in:name,description"
-
-/**
- * Search repos based on a query.
- * Trigger a request to the Github searchRepo API with the following params:
- * @param query searchRepo keyword
- * @param page request page index
- * @param itemsPerPage number of repositories to be returned by the Github API per page
- */
-suspend fun searchRepos(
-        service: GithubService,
-        query: String,
-        page: Int,
-        itemsPerPage: Int
-): RepoSearchResult {
-    Log.d(TAG, "query: $query, page: $page, itemsPerPage: $itemsPerPage")
-
-    val apiQuery = query + IN_QUALIFIER
-
-    val response = service.searchRepos(apiQuery, page, itemsPerPage)
-    if (response.isSuccessful) {
-        Log.d(TAG, "got a response $response")
-        if (response.isSuccessful) {
-            val repos = response.body()?.items ?: emptyList()
-            return RepoSearchResult.Success(repos)
-        } else {
-            return RepoSearchResult.Error(IOException(response.message() ?: "Unknown error"))
-        }
-    } else {
-        Log.d(TAG, "fail to get data")
-        return RepoSearchResult.Error(IOException(response.message() ?: "Unknown error"))
-    }
-}
+const val IN_QUALIFIER = "in:name,description"
 
 /**
  * Github API communication setup via Retrofit.
