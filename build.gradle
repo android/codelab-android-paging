@@ -35,7 +35,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven { url 'https://ci.android.com/builds/submitted/6229151/androidx_snapshot/latest/repository' }
+        maven { url 'https://ci.android.com/builds/submitted/6261180/androidx_snapshot/latest/repository' }
     }
 }
 
