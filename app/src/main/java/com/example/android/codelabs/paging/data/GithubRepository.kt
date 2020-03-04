@@ -18,7 +18,7 @@ package com.example.android.codelabs.paging.data
 
 import android.util.Log
 import com.example.android.codelabs.paging.api.GithubService
-import com.example.android.codelabs.paging.api.searchRepos
+import com.example.android.codelabs.paging.api.IN_QUALIFIER
 import com.example.android.codelabs.paging.model.Repo
 import com.example.android.codelabs.paging.model.RepoSearchResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,6 +26,10 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import java.io.IOException
+
+// GitHub page API is 1 based: https://developer.github.com/v3/#pagination
+private const val GITHUB_STARTING_PAGE_INDEX = 1
 
 /**
  * Repository class that works with local and remote data sources.
@@ -42,7 +46,7 @@ class GithubRepository(private val service: GithubService) {
     private val searchResults = ConflatedBroadcastChannel<RepoSearchResult>()
 
     // keep the last requested page. When the request is successful, increment the page number.
-    private var lastRequestedPage = 1
+    private var lastRequestedPage = GITHUB_STARTING_PAGE_INDEX
 
     // avoid triggering multiple requests in the same time
     private var isRequestInProgress = false
@@ -67,18 +71,25 @@ class GithubRepository(private val service: GithubService) {
         if (isRequestInProgress) return
 
         isRequestInProgress = true
-        val apiResponse = searchRepos(service, query, lastRequestedPage, NETWORK_PAGE_SIZE)
-        Log.d("GithubRepository", "response $apiResponse")
-        // add the new result list to the existing list
-        when (apiResponse) {
-            is RepoSearchResult.Success -> {
-                inMemoryCache.addAll(apiResponse.data)
+
+        val apiQuery = query + IN_QUALIFIER
+        val response = service.searchRepos(apiQuery, lastRequestedPage, NETWORK_PAGE_SIZE)
+        Log.d("GithubRepository", "response $response")
+        if (response.isSuccessful) {
+            if (response.isSuccessful) {
+                val repos = response.body()?.items ?: emptyList()
+                inMemoryCache.addAll(repos)
                 val reposByName = reposByName(query)
                 searchResults.offer(RepoSearchResult.Success(reposByName))
+            } else {
+                Log.d("GithubRepository", "fail to get data")
+                searchResults.offer(RepoSearchResult.Error(IOException(response.message()
+                        ?: "Unknown error")))
             }
-            is RepoSearchResult.Error -> {
-                searchResults.offer(RepoSearchResult.Error(apiResponse.error))
-            }
+        } else {
+            Log.d("GithubRepository", "fail to get data")
+            searchResults.offer(RepoSearchResult.Error(IOException(response.message()
+                    ?: "Unknown error")))
         }
         lastRequestedPage++
         isRequestInProgress = false
