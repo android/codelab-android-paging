@@ -16,12 +16,7 @@
 
 package com.example.android.codelabs.paging.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -39,22 +34,22 @@ import kotlinx.coroutines.flow.Flow
 class SearchRepositoriesViewModel(private val repository: GithubRepository) : ViewModel() {
 
     @Volatile
-    private var lastQueryValue: String? = null
+    private var currentQueryValue: String? = null
     @Volatile
-    private var lastSearchResult: Flow<PagingData<Repo>>? = null
+    private var currentSearchResult: Flow<PagingData<Repo>>? = null
 
     /**
      * Search a repository based on a query string.
      */
     fun searchRepo(queryString: String): Flow<PagingData<Repo>> {
-        val result = lastSearchResult
-        if(queryString == lastQueryValue && result != null){
-            return result
+        val lastResult = currentSearchResult
+        if(queryString == currentQueryValue && lastResult != null){
+            return lastResult
         }
-        lastQueryValue = queryString
+        currentQueryValue = queryString
         val newResult = repository.getSearchResultStream(queryString)
                 .cachedIn(viewModelScope)
-        lastSearchResult = newResult
+        currentSearchResult = newResult
         return newResult
     }
 }
