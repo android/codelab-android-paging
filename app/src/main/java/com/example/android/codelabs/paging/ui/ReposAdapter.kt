@@ -27,17 +27,16 @@ import com.example.android.codelabs.paging.model.Repo
 /**
  * Adapter for the list of repositories.
  */
-class ReposAdapter : PagingDataAdapter<Repo, ViewHolder>(REPO_COMPARATOR) {
+class ReposAdapter : PagingDataAdapter<Repo, RepoViewHolder>(REPO_COMPARATOR) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RepoViewHolder {
         return RepoViewHolder.create(parent)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val repoItem = getItem(position)
-        if (repoItem != null) {
-            (holder as RepoViewHolder).bind(repoItem)
-        }
+    override fun onBindViewHolder(holder: RepoViewHolder, position: Int) {
+        // placeholders are not enabled, so items will never be null
+        val repoItem = getItem(position)!!
+        holder.bind(repoItem)
     }
 
     companion object {
