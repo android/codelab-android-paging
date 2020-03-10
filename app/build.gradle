@@ -58,8 +58,8 @@ android {
         enabled = true
     }
 
-    buildFeatures {
-        viewBinding = true
+    viewBinding {
+        enabled = true
     }
 }
 
