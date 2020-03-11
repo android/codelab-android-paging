@@ -23,7 +23,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.0-alpha09'
+        classpath 'com.android.tools.build:gradle:3.6.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -52,7 +52,7 @@ ext {
     materialVersion = '1.1.0'
     archComponentsVersion = '2.2.0'
     roomVersion = '2.2.4'
-    pagingVersion = '3.0.0-SNAPSHOT'
+    pagingVersion = '3.0.0-alpha01'
     retrofitVersion = '2.6.0'
     okhttpLoggingInterceptorVersion = '4.0.0'
     coroutines = '1.3.0'
