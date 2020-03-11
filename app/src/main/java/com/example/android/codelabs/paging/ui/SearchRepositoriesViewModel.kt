@@ -20,7 +20,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.PagingData.Companion.insertSeparators
 import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
 import com.example.android.codelabs.paging.data.GithubRepository
 import com.example.android.codelabs.paging.model.Repo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,19 +47,18 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
      */
     fun searchRepo(queryString: String): Flow<PagingData<UiModel>> {
         val lastResult = currentSearchResult
-        if(queryString == currentQueryValue && lastResult != null){
+        if (queryString == currentQueryValue && lastResult != null) {
             return lastResult
         }
         currentQueryValue = queryString
         val newResult: Flow<PagingData<UiModel>> = repository.getSearchResultStream(queryString)
-                .map { pagingData -> pagingData.map { UiModel.RepoItem(it) as UiModel } }
+                .map { pagingData -> pagingData.map { UiModel.RepoItem(it) } }
                 .map {
-                    it.insertSeparators { before, after ->
+                    it.insertSeparators<UiModel.RepoItem, UiModel> { before, after ->
                         if (before == null && after is UiModel.RepoItem) {
                             Log.d("ViewModel", "-> adding null separator")
                             UiModel.SeparatorItem("${after.repo.stars / 10_000}0.000+ stars")
-                        }
-                        if (before is UiModel.RepoItem && after is UiModel.RepoItem
+                        } else if (before is UiModel.RepoItem && after is UiModel.RepoItem
                                 && before.repo.stars / 10_000 > after.repo.stars / 10_000) {
                             if (after.repo.stars >= 10_000) {
                                 UiModel.SeparatorItem("${after.repo.stars / 10_000}0.000+ stars")
