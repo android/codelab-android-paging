@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
+import androidx.paging.LoadType
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.android.codelabs.paging.Injection
 import com.example.android.codelabs.paging.databinding.ActivitySearchRepositoriesBinding
@@ -57,9 +58,21 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         val decoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         binding.list.addItemDecoration(decoration)
 
-        binding.list.adapter = adapter
+        binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
+                header = ReposLoadStateAdapter { adapter.retry() },
+                footer = ReposLoadStateAdapter { adapter.retry() }
+        )
         adapter.addLoadStateListener { loadType, loadState ->
             Log.d("SearchRepositoriesActivity", "adapter load: type = $loadType state = $loadState")
+            if (loadType == LoadType.REFRESH) {
+                binding.list.visibility = View.GONE
+                binding.progressBar.visibility = toVisibility(loadState == LoadState.Loading)
+                binding.retryButton.visibility = toVisibility(loadState is LoadState.Error)
+            } else {
+                binding.list.visibility = View.VISIBLE
+                binding.progressBar.visibility = View.GONE
+                binding.retryButton.visibility = View.GONE
+            }
             if (loadState is LoadState.Error) {
                 Toast.makeText(
                         this,
@@ -71,6 +84,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         val query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
         search(query)
         initSearch(query)
+        binding.retryButton.setOnClickListener { adapter.retry() }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -104,9 +118,6 @@ class SearchRepositoriesActivity : AppCompatActivity() {
             if (it.isNotEmpty()) {
                 binding.list.scrollToPosition(0)
                 search(it.toString())
-                // TODO how to clear the list
-                //  might not need it because of how Paging works
-//                adapter.collectFrom(PagingData.empty())
             }
         }
     }
@@ -122,14 +133,10 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         }
     }
 
-    private fun showEmptyList(show: Boolean) {
-        if (show) {
-            binding.emptyList.visibility = View.VISIBLE
-            binding.list.visibility = View.GONE
-        } else {
-            binding.emptyList.visibility = View.GONE
-            binding.list.visibility = View.VISIBLE
-        }
+    private fun toVisibility(constraint: Boolean): Int = if (constraint) {
+        View.VISIBLE
+    } else {
+        View.GONE
     }
 
     companion object {

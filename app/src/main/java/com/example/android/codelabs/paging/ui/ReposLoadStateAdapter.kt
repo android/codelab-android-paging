@@ -13,56 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.example.android.codelabs.paging.ui
 
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
+import androidx.paging.LoadState
+import androidx.paging.LoadStateAdapter
 
-class ReposLoadStateAdapter(private val retry: () -> Unit) : RecyclerView.Adapter<ReposLoadStateViewHolder>() {
-
-    /**
-     * LoadState to present in the adapter.
-     *
-     * Changing this property will immediately notify the Adapter to change the item it's
-     * presenting.
-     */
-    var loadState: LoadState = LoadState.Done
-        set(loadState) {
-            if (field != loadState) {
-                val displayOldItem = displayLoadStateAsItem(field)
-                val displayNewItem = displayLoadStateAsItem(loadState)
-
-                if (displayOldItem && !displayNewItem) {
-                    notifyItemRemoved(0)
-                } else if (displayNewItem && !displayOldItem) {
-                    notifyItemInserted(0)
-                } else if (displayOldItem && displayNewItem) {
-                    notifyItemChanged(0)
-                }
-                field = loadState
-            }
-        }
-
-    override fun onBindViewHolder(holder: ReposLoadStateViewHolder, position: Int) {
+class ReposLoadStateAdapter(private val retry: () -> Unit) : LoadStateAdapter<ReposLoadStateViewHolder>() {
+    override fun onBindViewHolder(holder: ReposLoadStateViewHolder, loadState: LoadState) {
         holder.bind(loadState)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReposLoadStateViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): ReposLoadStateViewHolder {
         return ReposLoadStateViewHolder.create(parent, retry)
     }
 
-    override fun getItemViewType(position: Int): Int = 0
-
-    override fun getItemCount(): Int = if (displayLoadStateAsItem(loadState)) 1 else 0
-
-    /**
-     * Returns true if the LoadState should be displayed as a list item when active.
-     *
-     *  [LoadState.Loading] and [LoadState.Error] present as list items,
-     * [LoadState.Done] is not.
-     */
-    private fun displayLoadStateAsItem(loadState: LoadState): Boolean {
-        return loadState is LoadState.Loading || loadState is LoadState.Error
-    }
 }
