@@ -36,17 +36,21 @@ class GithubPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Repo> {
         val position = params.key ?: GITHUB_STARTING_PAGE_INDEX
         val apiQuery = query + IN_QUALIFIER
-        val apiResponse = service.searchRepos(apiQuery, position, GithubRepository.NETWORK_PAGE_SIZE)
-        return if (apiResponse.isSuccessful) {
-            val repos = apiResponse.body()?.items ?: emptyList()
-            LoadResult.Page(
-                    data = repos,
-                    prevKey = if (position == GITHUB_STARTING_PAGE_INDEX) null else -1,
-                    // if we don't get any results, we consider that we're at the last page
-                    nextKey = if (repos.isEmpty()) null else position + 1
-            )
-        } else {
-            LoadResult.Error(IOException(apiResponse.message()))
+        try {
+            val apiResponse = service.searchRepos(apiQuery, position, GithubRepository.NETWORK_PAGE_SIZE)
+            return if (apiResponse.isSuccessful) {
+                val repos = apiResponse.body()?.items ?: emptyList()
+                LoadResult.Page(
+                        data = repos,
+                        prevKey = if (position == GITHUB_STARTING_PAGE_INDEX) null else -1,
+                        // if we don't get any results, we consider that we're at the last page
+                        nextKey = if (repos.isEmpty()) null else position + 1
+                )
+            } else {
+                LoadResult.Error(IOException(apiResponse.message()))
+            }
+        } catch (exception: Exception) {
+            return LoadResult.Error(exception)
         }
     }
 }

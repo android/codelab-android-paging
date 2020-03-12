@@ -23,4 +23,5 @@
     <dimen name="repo_icon_size">24dp</dimen>
     <dimen name="loading_progress_bar_size">36dp</dimen>
     <dimen name="placeholder_item_height">32dp</dimen>
+    <dimen name="error_text_size">24sp</dimen>
 </resources>
