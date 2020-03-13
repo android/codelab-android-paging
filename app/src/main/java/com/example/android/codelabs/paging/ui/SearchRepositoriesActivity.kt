@@ -17,6 +17,7 @@
 package com.example.android.codelabs.paging.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -26,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.MergeAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.example.android.codelabs.paging.Injection
@@ -40,6 +42,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySearchRepositoriesBinding
     private lateinit var viewModel: SearchRepositoriesViewModel
     private val adapter = ReposAdapter()
+    private lateinit var loadStateAdapter: ReposLoadStateAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +71,11 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     }
 
     private fun initAdapter() {
-        binding.list.adapter = adapter
+        loadStateAdapter = ReposLoadStateAdapter { viewModel.retry() }
+        binding.list.adapter = MergeAdapter(
+                adapter,
+                loadStateAdapter
+        )
         viewModel.repoResult.observe(this) { result ->
             when (result) {
                 is RepoSearchResult.Success -> {
@@ -83,6 +90,11 @@ class SearchRepositoriesActivity : AppCompatActivity() {
                     ).show()
                 }
             }
+        }
+
+        viewModel.repoLoadStatus.observe(this) { loadState ->
+            Log.d("SearchRepositoriesActivity", "load state $loadState")
+            loadStateAdapter.loadState = loadState
         }
     }
 

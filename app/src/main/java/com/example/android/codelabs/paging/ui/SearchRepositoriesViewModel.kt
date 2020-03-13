@@ -35,11 +35,22 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
         private const val VISIBLE_THRESHOLD = 5
     }
 
+    private val _repoLoadStatus = MutableLiveData<LoadState>()
+    val repoLoadStatus: LiveData<LoadState>
+        get() = _repoLoadStatus.distinctUntilChanged()
+
     private val queryLiveData = MutableLiveData<String>()
     val repoResult: LiveData<RepoSearchResult> = queryLiveData.switchMap { queryString ->
         liveData {
             val repos = repository.getSearchResultStream(queryString).asLiveData(Dispatchers.Main)
             emitSource(repos)
+        }.map {
+            // update the load status based on the result type
+            when (it) {
+                is RepoSearchResult.Success -> _repoLoadStatus.value = LoadState.Done
+                is RepoSearchResult.Error -> _repoLoadStatus.value = LoadState.Error(it.error)
+            }
+            it
         }
     }
 
@@ -54,9 +65,20 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
         if (visibleItemCount + lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
             val immutableQuery = queryLiveData.value
             if (immutableQuery != null) {
+                _repoLoadStatus.postValue(LoadState.Loading)
                 viewModelScope.launch {
                     repository.requestMore(immutableQuery)
                 }
+            }
+        }
+    }
+
+    fun retry() {
+        val immutableQuery = queryLiveData.value
+        if (immutableQuery != null) {
+            _repoLoadStatus.value = LoadState.Loading
+            viewModelScope.launch {
+                repository.retry(immutableQuery)
             }
         }
     }
