@@ -22,6 +22,7 @@ import com.example.android.codelabs.paging.api.IN_QUALIFIER
 import com.example.android.codelabs.paging.model.Repo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import retrofit2.HttpException
 import java.io.IOException
 
 // GitHub page API is 1 based: https://developer.github.com/v3/#pagination
@@ -49,7 +50,9 @@ class GithubPagingSource(
             } else {
                 LoadResult.Error(IOException(apiResponse.message()))
             }
-        } catch (exception: Exception) {
+        } catch (exception: IOException){
+            return LoadResult.Error(exception)
+        } catch (exception: HttpException) {
             return LoadResult.Error(exception)
         }
     }

@@ -40,44 +40,20 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
     @Volatile
     private var currentQueryValue: String? = null
     @Volatile
-    private var currentSearchResult: Flow<PagingData<UiModel>>? = null
+    private var currentSearchResult: Flow<PagingData<Repo>>? = null
 
     /**
      * Search a repository based on a query string.
      */
-    fun searchRepo(queryString: String): Flow<PagingData<UiModel>> {
+    fun searchRepo(queryString: String): Flow<PagingData<Repo>> {
         val lastResult = currentSearchResult
         if (queryString == currentQueryValue && lastResult != null) {
             return lastResult
         }
         currentQueryValue = queryString
-        val newResult: Flow<PagingData<UiModel>> = repository.getSearchResultStream(queryString)
-                .map { pagingData -> pagingData.map { UiModel.RepoItem(it) } }
-                .map {
-                    it.insertSeparators<UiModel.RepoItem, UiModel> { before, after ->
-                        if (before == null && after is UiModel.RepoItem) {
-                            Log.d("ViewModel", "-> adding null separator")
-                            UiModel.SeparatorItem("${after.repo.stars / 10_000}0.000+ stars")
-                        } else if (before is UiModel.RepoItem && after is UiModel.RepoItem
-                                && before.repo.stars / 10_000 > after.repo.stars / 10_000) {
-                            if (after.repo.stars >= 10_000) {
-                                UiModel.SeparatorItem("${after.repo.stars / 10_000}0.000+ stars")
-                            } else {
-                                UiModel.SeparatorItem("< 10.000+ stars")
-                            }
-                        } else {
-                            // no separator
-                            null
-                        }
-                    }
-                }
+        val newResult: Flow<PagingData<Repo>> = repository.getSearchResultStream(queryString)
                 .cachedIn(viewModelScope)
         currentSearchResult = newResult
         return newResult
     }
-}
-
-sealed class UiModel {
-    data class RepoItem(val repo: Repo) : UiModel()
-    data class SeparatorItem(val description: String) : UiModel()
 }
