@@ -19,7 +19,10 @@ package com.example.android.codelabs.paging.ui
 import androidx.lifecycle.*
 import com.example.android.codelabs.paging.data.GithubRepository
 import com.example.android.codelabs.paging.model.RepoSearchResult
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
 
 /**
  * ViewModel for the [SearchRepositoriesActivity] screen.
@@ -34,7 +37,7 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
     }
 
     private val queryLiveData = MutableLiveData<String>()
-    val repoResult: LiveData<RepoSearchResult> =  queryLiveData.switchMap {
+    val repoResult: LiveData<RepoSearchResult> = queryLiveData.switchMap {
         liveData {
             val repos = repository.getSearchResultStream(it).asLiveData(Dispatchers.Main)
             emitSource(repos)
