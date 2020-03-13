@@ -64,34 +64,43 @@ class GithubRepository(private val service: GithubService) {
     }
 
     suspend fun requestMore(query: String) {
+        if (isRequestInProgress) return
+        requestAndSaveData(query)
+        lastRequestedPage++
+    }
+
+    suspend fun retry(query: String) {
+        if (isRequestInProgress) return
         requestAndSaveData(query)
     }
 
     private suspend fun requestAndSaveData(query: String) {
-        if (isRequestInProgress) return
-
         isRequestInProgress = true
 
         val apiQuery = query + IN_QUALIFIER
-        val response = service.searchRepos(apiQuery, lastRequestedPage, NETWORK_PAGE_SIZE)
-        Log.d("GithubRepository", "response $response")
-        if (response.isSuccessful) {
+        try {
+            val response = service.searchRepos(apiQuery, lastRequestedPage, NETWORK_PAGE_SIZE)
+            Log.d("GithubRepository", "response $response")
             if (response.isSuccessful) {
-                val repos = response.body()?.items ?: emptyList()
-                inMemoryCache.addAll(repos)
-                val reposByName = reposByName(query)
-                searchResults.offer(RepoSearchResult.Success(reposByName))
+                if (response.isSuccessful) {
+                    val repos = response.body()?.items ?: emptyList()
+                    inMemoryCache.addAll(repos)
+                    val reposByName = reposByName(query)
+                    searchResults.offer(RepoSearchResult.Success(reposByName))
+                } else {
+                    Log.d("GithubRepository", "fail to get data")
+                    searchResults.offer(RepoSearchResult.Error(IOException(response.message()
+                            ?: "Unknown error")))
+                }
             } else {
                 Log.d("GithubRepository", "fail to get data")
                 searchResults.offer(RepoSearchResult.Error(IOException(response.message()
                         ?: "Unknown error")))
             }
-        } else {
+        } catch (exception: Exception) {
             Log.d("GithubRepository", "fail to get data")
-            searchResults.offer(RepoSearchResult.Error(IOException(response.message()
-                    ?: "Unknown error")))
+            searchResults.offer(RepoSearchResult.Error(exception))
         }
-        lastRequestedPage++
         isRequestInProgress = false
     }
 
