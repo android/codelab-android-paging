@@ -32,10 +32,6 @@ class ReposAdapter : PagingDataAdapter<Repo, ViewHolder>(REPO_COMPARATOR) {
         return RepoViewHolder.create(parent)
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return R.layout.repo_view_item
-    }
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val repo = getItem(position)
         (holder as RepoViewHolder).bind(repo)
@@ -44,11 +40,7 @@ class ReposAdapter : PagingDataAdapter<Repo, ViewHolder>(REPO_COMPARATOR) {
     companion object {
         private val REPO_COMPARATOR = object : DiffUtil.ItemCallback<Repo>() {
             override fun areItemsTheSame(oldItem: Repo, newItem: Repo): Boolean {
-                return if (oldItem is Repo && newItem is Repo) {
-                    oldItem == newItem
-                } else {
-                    false
-                }
+                return oldItem == newItem
             }
 
             override fun areContentsTheSame(oldItem: Repo, newItem: Repo): Boolean =

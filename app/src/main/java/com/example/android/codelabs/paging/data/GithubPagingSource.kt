@@ -43,14 +43,14 @@ class GithubPagingSource(
                 val repos = apiResponse.body()?.items ?: emptyList()
                 LoadResult.Page(
                         data = repos,
-                        prevKey = if (position == GITHUB_STARTING_PAGE_INDEX) null else -1,
+                        prevKey = if (position == GITHUB_STARTING_PAGE_INDEX) null else position - 1,
                         // if we don't get any results, we consider that we're at the last page
                         nextKey = if (repos.isEmpty()) null else position + 1
                 )
             } else {
                 LoadResult.Error(IOException(apiResponse.message()))
             }
-        } catch (exception: IOException){
+        } catch (exception: IOException) {
             return LoadResult.Error(exception)
         } catch (exception: HttpException) {
             return LoadResult.Error(exception)
