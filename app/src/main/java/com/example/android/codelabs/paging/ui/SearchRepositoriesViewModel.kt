@@ -29,7 +29,6 @@ import kotlinx.coroutines.launch
  * The ViewModel works with the [GithubRepository] to get the data.
  */
 @ExperimentalCoroutinesApi
-@FlowPreview
 class SearchRepositoriesViewModel(private val repository: GithubRepository) : ViewModel() {
 
     companion object {
@@ -37,9 +36,9 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
     }
 
     private val queryLiveData = MutableLiveData<String>()
-    val repoResult: LiveData<RepoSearchResult> = queryLiveData.switchMap {
+    val repoResult: LiveData<RepoSearchResult> = queryLiveData.switchMap { queryString ->
         liveData {
-            val repos = repository.getSearchResultStream(it).asLiveData(Dispatchers.Main)
+            val repos = repository.getSearchResultStream(queryString).asLiveData(Dispatchers.Main)
             emitSource(repos)
         }
     }
