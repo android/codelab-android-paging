@@ -34,7 +34,6 @@ import com.example.android.codelabs.paging.model.RepoSearchResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
-@FlowPreview
 @ExperimentalCoroutinesApi
 class SearchRepositoriesActivity : AppCompatActivity() {
 

@@ -26,6 +26,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import retrofit2.HttpException
 import java.io.IOException
 
 // GitHub page API is 1 based: https://developer.github.com/v3/#pagination
@@ -34,7 +35,6 @@ private const val GITHUB_STARTING_PAGE_INDEX = 1
 /**
  * Repository class that works with local and remote data sources.
  */
-@FlowPreview
 @ExperimentalCoroutinesApi
 class GithubRepository(private val service: GithubService) {
 
@@ -97,8 +97,9 @@ class GithubRepository(private val service: GithubService) {
                 searchResults.offer(RepoSearchResult.Error(IOException(response.message()
                         ?: "Unknown error")))
             }
-        } catch (exception: Exception) {
-            Log.d("GithubRepository", "fail to get data")
+        } catch (exception: IOException) {
+            searchResults.offer(RepoSearchResult.Error(exception))
+        } catch (exception: HttpException) {
             searchResults.offer(RepoSearchResult.Error(exception))
         }
         isRequestInProgress = false
