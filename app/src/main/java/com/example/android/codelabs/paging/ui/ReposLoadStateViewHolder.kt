@@ -26,8 +26,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.android.codelabs.paging.R
 
 class ReposLoadStateViewHolder(
-        retry: () -> Unit,
-        view: View
+        view: View,
+        retry: () -> Unit
 ) : RecyclerView.ViewHolder(view) {
     private val progressBar: ProgressBar = itemView.findViewById(R.id.progress_bar)
     private val errorMsg: TextView = itemView.findViewById(R.id.error_msg)
@@ -51,10 +51,10 @@ class ReposLoadStateViewHolder(
     }
 
     companion object {
-        fun create(retry: () -> Unit, parent: ViewGroup): ReposLoadStateViewHolder {
+        fun create(parent: ViewGroup, retry: () -> Unit): ReposLoadStateViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.repos_load_state_header_view_item, parent, false)
-            return ReposLoadStateViewHolder(retry, view)
+            return ReposLoadStateViewHolder(view, retry)
         }
     }
 }

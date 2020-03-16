@@ -49,7 +49,7 @@ class ReposLoadStateAdapter(private val retry: () -> Unit) : RecyclerView.Adapte
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReposLoadStateViewHolder {
-        return ReposLoadStateViewHolder.create(retry, parent)
+        return ReposLoadStateViewHolder.create(parent, retry)
     }
 
     override fun getItemViewType(position: Int): Int = 0

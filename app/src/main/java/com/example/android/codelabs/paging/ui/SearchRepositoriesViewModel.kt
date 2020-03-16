@@ -74,11 +74,10 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
     }
 
     fun retry() {
-        val immutableQuery = queryLiveData.value
-        if (immutableQuery != null) {
+        queryLiveData.value?.let { query ->
             _repoLoadStatus.value = LoadState.Loading
             viewModelScope.launch {
-                repository.retry(immutableQuery)
+                repository.retry(query)
             }
         }
     }
