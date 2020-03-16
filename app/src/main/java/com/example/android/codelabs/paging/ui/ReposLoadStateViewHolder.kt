@@ -24,24 +24,26 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android.codelabs.paging.R
+import com.example.android.codelabs.paging.databinding.ReposLoadStateHeaderViewItemBinding
 
 class ReposLoadStateViewHolder(
-        view: View,
+        private val binding: ReposLoadStateHeaderViewItemBinding,
         retry: () -> Unit
-) : RecyclerView.ViewHolder(view) {
-    private val progressBar: ProgressBar = itemView.findViewById(R.id.progress_bar)
-    private val errorMsg: TextView = itemView.findViewById(R.id.error_msg)
-    private val retry: Button = itemView.findViewById<Button>(R.id.retry_button).also {
-        it.setOnClickListener { retry.invoke() }
+) : RecyclerView.ViewHolder(binding.root) {
+
+    init {
+        binding.retryButton.also {
+            it.setOnClickListener { retry.invoke() }
+        }
     }
 
     fun bind(loadState: LoadState) {
         if (loadState is LoadState.Error) {
-            errorMsg.text = loadState.error.localizedMessage
+            binding.errorMsg.text = loadState.error.localizedMessage
         }
-        progressBar.visibility = toVisibility(loadState == LoadState.Loading)
-        retry.visibility = toVisibility(loadState != LoadState.Loading)
-        errorMsg.visibility = toVisibility(loadState != LoadState.Loading)
+        binding.progressBar.visibility = toVisibility(loadState == LoadState.Loading)
+        binding.retryButton.visibility = toVisibility(loadState != LoadState.Loading)
+        binding.errorMsg.visibility = toVisibility(loadState != LoadState.Loading)
     }
 
     private fun toVisibility(constraint: Boolean): Int = if (constraint) {
@@ -54,7 +56,8 @@ class ReposLoadStateViewHolder(
         fun create(parent: ViewGroup, retry: () -> Unit): ReposLoadStateViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.repos_load_state_header_view_item, parent, false)
-            return ReposLoadStateViewHolder(view, retry)
+            val binding = ReposLoadStateHeaderViewItemBinding.bind(view)
+            return ReposLoadStateViewHolder(binding, retry)
         }
     }
 }
