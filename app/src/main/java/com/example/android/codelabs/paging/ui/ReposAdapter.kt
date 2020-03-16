@@ -21,6 +21,7 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.android.codelabs.paging.R
+import java.lang.UnsupportedOperationException
 
 /**
  * Adapter for the list of repositories.
@@ -39,7 +40,7 @@ class ReposAdapter : PagingDataAdapter<UiModel, ViewHolder>(UIMODEL_COMPARATOR) 
         return when (getItem(position)) {
             is UiModel.RepoItem -> R.layout.repo_view_item
             is UiModel.SeparatorItem -> R.layout.separator_view_item
-            null -> 0
+            null -> throw UnsupportedOperationException("Unknown view")
         }
     }
 
@@ -56,11 +57,10 @@ class ReposAdapter : PagingDataAdapter<UiModel, ViewHolder>(UIMODEL_COMPARATOR) 
     companion object {
         private val UIMODEL_COMPARATOR = object : DiffUtil.ItemCallback<UiModel>() {
             override fun areItemsTheSame(oldItem: UiModel, newItem: UiModel): Boolean {
-                return if (oldItem is UiModel.RepoItem && newItem is UiModel.RepoItem) {
-                    oldItem.repo.fullName == newItem.repo.fullName
-                } else {
-                    false
-                }
+                return (oldItem is UiModel.RepoItem && newItem is UiModel.RepoItem &&
+                        oldItem.repo.fullName == newItem.repo.fullName) ||
+                        (oldItem is UiModel.SeparatorItem && newItem is UiModel.SeparatorItem &&
+                                oldItem.description == newItem.description)
             }
 
             override fun areContentsTheSame(oldItem: UiModel, newItem: UiModel): Boolean =

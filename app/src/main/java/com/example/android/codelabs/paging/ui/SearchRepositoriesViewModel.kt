@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
 import com.example.android.codelabs.paging.data.GithubRepository
 import com.example.android.codelabs.paging.model.Repo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -53,13 +54,12 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
                 .map { pagingData -> pagingData.map { UiModel.RepoItem(it) } }
                 .map {
                     it.insertSeparators<UiModel.RepoItem, UiModel> { before, after ->
-                        if (before == null && after is UiModel.RepoItem) {
-                            Log.d("ViewModel", "-> adding null separator")
-                            UiModel.SeparatorItem("${after.repo.stars / 10_000}0.000+ stars")
-                        } else if (before is UiModel.RepoItem && after is UiModel.RepoItem
-                                && before.repo.stars / 10_000 > after.repo.stars / 10_000) {
-                            if (after.repo.stars >= 10_000) {
-                                UiModel.SeparatorItem("${after.repo.stars / 10_000}0.000+ stars")
+                        if (before == null && after != null) {
+                            UiModel.SeparatorItem("${after.roundedStarCount}0.000+ stars")
+                        } else if (before != null && after != null
+                                && before.roundedStarCount > after.roundedStarCount) {
+                            if (after.roundedStarCount >= 10_000) {
+                                UiModel.SeparatorItem("${after.roundedStarCount}0.000+ stars")
                             } else {
                                 UiModel.SeparatorItem("< 10.000+ stars")
                             }
@@ -79,3 +79,6 @@ sealed class UiModel {
     data class RepoItem(val repo: Repo) : UiModel()
     data class SeparatorItem(val description: String) : UiModel()
 }
+
+private val UiModel.RepoItem.roundedStarCount: Int
+    get() = this.repo.stars / 10_000
