@@ -65,8 +65,10 @@ class GithubRepository(private val service: GithubService) {
 
     suspend fun requestMore(query: String) {
         if (isRequestInProgress) return
-        requestAndSaveData(query)
-        lastRequestedPage++
+        val successful = requestAndSaveData(query)
+        if (successful) {
+            lastRequestedPage++
+        }
     }
 
     suspend fun retry(query: String) {
@@ -74,8 +76,9 @@ class GithubRepository(private val service: GithubService) {
         requestAndSaveData(query)
     }
 
-    private suspend fun requestAndSaveData(query: String) {
+    private suspend fun requestAndSaveData(query: String): Boolean {
         isRequestInProgress = true
+        var successful = false
 
         val apiQuery = query + IN_QUALIFIER
         try {
@@ -87,6 +90,7 @@ class GithubRepository(private val service: GithubService) {
                     inMemoryCache.addAll(repos)
                     val reposByName = reposByName(query)
                     searchResults.offer(RepoSearchResult.Success(reposByName))
+                    successful = true
                 } else {
                     Log.d("GithubRepository", "fail to get data")
                     searchResults.offer(RepoSearchResult.Error(IOException(response.message()
@@ -103,6 +107,7 @@ class GithubRepository(private val service: GithubService) {
             searchResults.offer(RepoSearchResult.Error(exception))
         }
         isRequestInProgress = false
+        return successful
     }
 
     private fun reposByName(query: String): List<Repo> {
