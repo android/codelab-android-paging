@@ -30,14 +30,14 @@ class ReposLoadStateAdapter(private val retry: () -> Unit) : RecyclerView.Adapte
     var loadState: LoadState = LoadState.Done
         set(loadState) {
             if (field != loadState) {
-                val oldItem = displayLoadStateAsItem(field)
-                val newItem = displayLoadStateAsItem(loadState)
+                val displayOldItem = displayLoadStateAsItem(field)
+                val displayNewItem = displayLoadStateAsItem(loadState)
 
-                if (oldItem && !newItem) {
+                if (displayOldItem && !displayNewItem) {
                     notifyItemRemoved(0)
-                } else if (newItem && !oldItem) {
+                } else if (displayNewItem && !displayOldItem) {
                     notifyItemInserted(0)
-                } else if (oldItem && newItem) {
+                } else if (displayOldItem && displayNewItem) {
                     notifyItemChanged(0)
                 }
                 field = loadState
