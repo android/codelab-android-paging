@@ -31,7 +31,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.android.codelabs.paging.Injection
 import com.example.android.codelabs.paging.databinding.ActivitySearchRepositoriesBinding
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -58,6 +57,19 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         val decoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         binding.list.addItemDecoration(decoration)
 
+        initAdapter()
+        val query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
+        search(query)
+        initSearch(query)
+        binding.retryButton.setOnClickListener { adapter.retry() }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(LAST_SEARCH_QUERY, binding.searchRepo.text.trim().toString())
+    }
+
+    private fun initAdapter() {
         binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
                 header = ReposLoadStateAdapter { adapter.retry() },
                 footer = ReposLoadStateAdapter { adapter.retry() }
@@ -81,15 +93,6 @@ class SearchRepositoriesActivity : AppCompatActivity() {
                 ).show()
             }
         }
-        val query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
-        search(query)
-        initSearch(query)
-        binding.retryButton.setOnClickListener { adapter.retry() }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(LAST_SEARCH_QUERY, binding.searchRepo.text.trim().toString())
     }
 
     private fun initSearch(query: String) {

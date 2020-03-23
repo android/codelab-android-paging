@@ -27,5 +27,4 @@ class ReposLoadStateAdapter(private val retry: () -> Unit) : LoadStateAdapter<Re
     override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): ReposLoadStateViewHolder {
         return ReposLoadStateViewHolder.create(parent, retry)
     }
-
 }

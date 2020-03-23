@@ -21,7 +21,6 @@ import com.example.android.codelabs.paging.api.GithubService
 import com.example.android.codelabs.paging.api.IN_QUALIFIER
 import com.example.android.codelabs.paging.model.Repo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -29,23 +28,22 @@ import java.io.IOException
 private const val GITHUB_STARTING_PAGE_INDEX = 1
 
 @ExperimentalCoroutinesApi
-@FlowPreview
 class GithubPagingSource(
         private val service: GithubService,
         private val query: String
 ) : PagingSource<Int, Repo>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Repo> {
-        val position = params.key ?: GITHUB_STARTING_PAGE_INDEX
+        val currentPage = params.key ?: GITHUB_STARTING_PAGE_INDEX
         val apiQuery = query + IN_QUALIFIER
         try {
-            val apiResponse = service.searchRepos(apiQuery, position, GithubRepository.NETWORK_PAGE_SIZE)
+            val apiResponse = service.searchRepos(apiQuery, currentPage, params.loadSize)
             return if (apiResponse.isSuccessful) {
                 val repos = apiResponse.body()?.items ?: emptyList()
                 LoadResult.Page(
                         data = repos,
-                        prevKey = if (position == GITHUB_STARTING_PAGE_INDEX) null else position - 1,
+                        prevKey = if (currentPage == GITHUB_STARTING_PAGE_INDEX) null else currentPage - 1,
                         // if we don't get any results, we consider that we're at the last page
-                        nextKey = if (repos.isEmpty()) null else position + 1
+                        nextKey = if (repos.isEmpty()) null else currentPage + 1
                 )
             } else {
                 LoadResult.Error(IOException(apiResponse.message()))
