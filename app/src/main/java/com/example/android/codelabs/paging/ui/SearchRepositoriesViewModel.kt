@@ -58,7 +58,7 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
                             UiModel.SeparatorItem("${after.roundedStarCount}0.000+ stars")
                         } else if (before != null && after != null
                                 && before.roundedStarCount > after.roundedStarCount) {
-                            if (after.roundedStarCount >= 10_000) {
+                            if (after.roundedStarCount >= 1) {
                                 UiModel.SeparatorItem("${after.roundedStarCount}0.000+ stars")
                             } else {
                                 UiModel.SeparatorItem("< 10.000+ stars")
