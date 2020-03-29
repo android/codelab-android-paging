@@ -58,6 +58,7 @@ class GithubRepository(private val service: GithubService) {
     suspend fun getSearchResultStream(query: String): Flow<RepoSearchResult> {
         Log.d("GithubRepository", "New query: $query")
         lastRequestedPage = 1
+        inMemoryCache.clear()
         requestAndSaveData(query)
 
         return searchResults.asFlow()

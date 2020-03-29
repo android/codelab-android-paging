@@ -32,7 +32,6 @@ import com.example.android.codelabs.paging.Injection
 import com.example.android.codelabs.paging.databinding.ActivitySearchRepositoriesBinding
 import com.example.android.codelabs.paging.model.RepoSearchResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 
 @ExperimentalCoroutinesApi
 class SearchRepositoriesActivity : AppCompatActivity() {
@@ -58,7 +57,9 @@ class SearchRepositoriesActivity : AppCompatActivity() {
 
         initAdapter()
         val query = savedInstanceState?.getString(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
-        viewModel.searchRepo(query)
+        if (viewModel.repoResult.value == null) {
+            viewModel.searchRepo(query)
+        }
         initSearch(query)
     }
 
@@ -110,9 +111,9 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     private fun updateRepoListFromInput() {
         binding.searchRepo.text.trim().let {
             if (it.isNotEmpty()) {
-                binding.list.scrollToPosition(0)
+                //  binding.list.scrollToPosition(0)
                 viewModel.searchRepo(it.toString())
-                adapter.submitList(null)
+                //adapter.submitList(null)
             }
         }
     }
