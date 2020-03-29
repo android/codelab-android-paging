@@ -77,7 +77,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         adapter.addLoadStateListener { loadType, loadState ->
             Log.d("SearchRepositoriesActivity", "adapter load: type = $loadType state = $loadState")
             if (loadType == LoadType.REFRESH) {
-                binding.list.visibility = View.GONE
+                binding.list.visibility = toVisibility(loadState == LoadState.Idle)
                 binding.progressBar.visibility = toVisibility(loadState == LoadState.Loading)
                 binding.retryButton.visibility = toVisibility(loadState is LoadState.Error)
             } else {
