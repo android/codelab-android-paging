@@ -21,15 +21,21 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingDataFlow
 import com.example.android.codelabs.paging.api.GithubService
+import com.example.android.codelabs.paging.db.RepoDatabase
 import com.example.android.codelabs.paging.model.Repo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Repository class that works with local and remote data sources.
  */
 @ExperimentalCoroutinesApi
-class GithubRepository(private val service: GithubService) {
+class GithubRepository(
+        private val service: GithubService,
+        private val database: RepoDatabase,
+        private val ioDispatcher: CoroutineContext
+) {
 
     /**
      * Search repositories whose names match the query, exposed as a stream of data that will emit
@@ -38,13 +44,19 @@ class GithubRepository(private val service: GithubService) {
     fun getSearchResultStream(query: String): Flow<PagingData<Repo>> {
         Log.d("GithubRepository", "New query: $query")
 
+        val pagingSourceFactory = database.reposDao().reposByName().asPagingSourceFactory()
         return PagingDataFlow(
                 config = PagingConfig(pageSize = NETWORK_PAGE_SIZE),
-                pagingSourceFactory = { GithubPagingSource(service, query) }
+                remoteMediator = GithubRemoteMediator(
+                        GithubPagingSource(service, query),
+                        database,
+                        ioDispatcher
+                ),
+                pagingSourceFactory = pagingSourceFactory
         )
     }
 
     companion object {
-        private const val NETWORK_PAGE_SIZE = 50
+        const val NETWORK_PAGE_SIZE = 50
     }
 }

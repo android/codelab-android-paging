@@ -50,7 +50,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         setContentView(view)
 
         // get the view model
-        viewModel = ViewModelProvider(this, Injection.provideViewModelFactory())
+        viewModel = ViewModelProvider(this, Injection.provideViewModelFactory(applicationContext))
                 .get(SearchRepositoriesViewModel::class.java)
 
         // add dividers between RecyclerView's row items
