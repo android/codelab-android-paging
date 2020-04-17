@@ -23,6 +23,7 @@ import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.example.android.codelabs.paging.api.GithubService
 import com.example.android.codelabs.paging.api.IN_QUALIFIER
+import com.example.android.codelabs.paging.db.RemoteKeys
 import com.example.android.codelabs.paging.db.RepoDatabase
 import com.example.android.codelabs.paging.model.Repo
 import retrofit2.HttpException
@@ -39,17 +40,27 @@ class GithubRemoteMediator(
 
     override suspend fun load(loadType: LoadType, state: PagingState<Int, Repo>): MediatorResult {
         Log.d("GithubRemoteMediator", "load type: $loadType ")
-        // Get the last accessed item from the current PagingState, which holds all loaded
-        // pages from DB.
-        val dbPage = when (loadType) {
-            LoadType.REFRESH -> GITHUB_STARTING_PAGE_INDEX
-            LoadType.START -> state.pages.firstOrNull()?.prevKey
-            LoadType.END -> state.pages.lastOrNull()?.nextKey
-        } ?: return MediatorResult.Success(canRequestMoreData = false)
 
-        val page = dbPage / state.config.pageSize + 1
+        if (loadType == LoadType.REFRESH) {
+            repoDatabase.withTransaction {
+                repoDatabase.reposDao().clearRepos()
+                repoDatabase.remoteKeysDao().clearRemoteKeys()
+            }
+        }
+        val remoteKeys = repoDatabase.remoteKeysDao().remoteKeys()
+                ?: RemoteKeys(null, GITHUB_STARTING_PAGE_INDEX)
 
-        Log.d("GithubRemoteMediator", "dbPage: $dbPage, page: $page")
+        val page = when (loadType) {
+            LoadType.REFRESH -> remoteKeys.nextKey
+            LoadType.START -> remoteKeys.prevKey
+            LoadType.END -> remoteKeys.nextKey
+        }
+
+        if (page == null) {
+            return MediatorResult.Success(canRequestMoreData = false)
+        }
+
+        Log.d("GithubRemoteMediator", "page: $page")
 
         val apiQuery = query + IN_QUALIFIER
         try {
@@ -57,14 +68,21 @@ class GithubRemoteMediator(
 
             return if (apiResponse.isSuccessful) {
                 val repos = apiResponse.body()?.items ?: emptyList()
+                val canRequestMoreData = repos.isNotEmpty()
+                val newRemoteKeys = RemoteKeys(
+                        prevKey = remoteKeys.nextKey,
+                        nextKey = if (canRequestMoreData) {
+                            (remoteKeys.nextKey ?: GITHUB_STARTING_PAGE_INDEX) + 1
+                        } else {
+                            null
+                        }
+                )
                 repoDatabase.withTransaction {
-                    if (loadType == LoadType.REFRESH) {
-                        repoDatabase.reposDao().clearRepos()
-                    }
+                    repoDatabase.remoteKeysDao().replace(newRemoteKeys)
                     repoDatabase.reposDao().insert(repos)
                 }
                 Log.d("GithubRemoteMediator", "data: ${repos.size}")
-                MediatorResult.Success(canRequestMoreData = repos.isNotEmpty())
+                MediatorResult.Success(canRequestMoreData = canRequestMoreData)
             } else {
                 MediatorResult.Error(IOException(apiResponse.message()))
             }
