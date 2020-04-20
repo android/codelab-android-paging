@@ -35,7 +35,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven { url 'https://androidx-dev-prod.appspot.com/snapshots/builds/6397162/artifacts/repository' }
+        maven { url 'https://androidx-dev-prod.appspot.com/snapshots/builds/6433189/artifacts/repository' }
     }
 }
 

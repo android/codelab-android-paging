@@ -40,7 +40,7 @@ class ReposAdapter : PagingDataAdapter<UiModel, ViewHolder>(UIMODEL_COMPARATOR) 
         return when (getItem(position)) {
             is UiModel.RepoItem -> R.layout.repo_view_item
             is UiModel.SeparatorItem -> R.layout.separator_view_item
-            null -> throw UnsupportedOperationException("Unknown view")
+            null -> throw UnsupportedOperationException("Unknown view for position $position")
         }
     }
 

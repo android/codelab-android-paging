@@ -77,7 +77,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         adapter.addLoadStateListener { loadType, loadState ->
             Log.d("SearchRepositoriesActivity", "adapter load: type = $loadType state = $loadState")
             if (loadType == LoadType.REFRESH) {
-                binding.list.visibility = toVisibility(loadState == LoadState.Idle)
+                binding.list.visibility = toVisibility(loadState is LoadState.NotLoading)
                 binding.progressBar.visibility = toVisibility(loadState == LoadState.Loading)
                 binding.retryButton.visibility = toVisibility(loadState is LoadState.Error)
             } else {
@@ -130,7 +130,6 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         searchJob?.cancel()
         searchJob = lifecycleScope.launch {
             viewModel.searchRepo(query).collect {
-                Log.d("SearchRepositoriesActivity", "query: $query, collecting $it")
                 adapter.presentData(it)
             }
         }

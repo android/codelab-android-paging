@@ -22,6 +22,7 @@ import com.example.android.codelabs.paging.api.GithubService
 import com.example.android.codelabs.paging.data.GithubRepository
 import com.example.android.codelabs.paging.db.RepoDatabase
 import com.example.android.codelabs.paging.ui.ViewModelFactory
+import kotlinx.coroutines.Dispatchers
 
 /**
  * Class that handles object creation.

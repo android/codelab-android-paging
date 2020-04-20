@@ -30,13 +30,15 @@ import com.example.android.codelabs.paging.model.Repo
 interface RepoDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(posts: List<Repo>)
+    suspend fun insert(repos: List<Repo>)
 
     // Do a similar query as the search API:
     // Look for repos that contain the query string in the name or in the description
     // and order those results descending, by the number of stars and then by name
-    @Query("SELECT * FROM repos ORDER BY stars DESC, name ASC")
-    fun reposByName(): DataSource.Factory<Int, Repo>
+    @Query("SELECT * FROM repos WHERE " +
+            "name LIKE :queryString OR description LIKE :queryString " +
+            "ORDER BY stars DESC, name ASC")
+    fun reposByName(queryString: String): DataSource.Factory<Int, Repo>
 
     @Query("DELETE FROM repos")
     suspend fun clearRepos()
