@@ -107,7 +107,7 @@ class GithubRemoteMediator(
                         RemoteKeys(repoId = it.id, prevKey = prevKey, nextKey = nextKey)
                     }
                     repoDatabase.remoteKeysDao().insertAll(keys)
-                    repoDatabase.reposDao().insert(repos)
+                    repoDatabase.reposDao().insertAll(repos)
                 }
                 MediatorResult.Success(endOfPaginationReached = canRequestMoreData)
             } else {
