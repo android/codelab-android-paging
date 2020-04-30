@@ -16,7 +16,6 @@
 
 package com.example.android.codelabs.paging.data
 
-import android.util.Log
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
@@ -63,7 +62,7 @@ class GithubRemoteMediator(
                 val remoteKeys = getRemoteKeyClosestToCurrentPosition(state)
                 remoteKeys?.nextKey?.minus(1) ?: GITHUB_STARTING_PAGE_INDEX
             }
-            LoadType.START -> {
+            LoadType.PREPEND -> {
                 val remoteKeys = getRemoteKeyForFirstItem(state)
                 if (remoteKeys == null) {
                     // The LoadType is START so some data was loaded before,
@@ -71,22 +70,21 @@ class GithubRemoteMediator(
                     // If the remoteKeys are null, then we're an invalid state and we have a bug
                     throw InvalidObjectException("Remote key and the prevKey should not be null")
                 }
+
                 // If the previous key is null, then we can't request more data
-                val prevKey = remoteKeys.prevKey
-                if (prevKey == null) {
-                    return MediatorResult.Success(endOfPaginationReached = false)
-                }
-                remoteKeys.prevKey
+                remoteKeys.prevKey ?: return MediatorResult.Success(endOfPaginationReached = true)
             }
-            LoadType.END -> {
+            LoadType.APPEND -> {
                 val remoteKeys = getRemoteKeyForLastItem(state)
-                if (remoteKeys?.nextKey == null) {
+                if (remoteKeys == null) {
                     // The LoadType is END, so some data was loaded before,
                     // so we should have been able to get remote keys
                     // If the remoteKeys are null, then we're an invalid state and we have a bug
                     throw InvalidObjectException("Remote key should not be null for $loadType")
                 }
-                remoteKeys.nextKey
+
+                // If the next key is null, then we can't request more data
+                remoteKeys.nextKey ?: return MediatorResult.Success(endOfPaginationReached = true)
             }
         }
 
