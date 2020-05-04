@@ -83,33 +83,33 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         )
     }
 
-private fun initSearch(query: String) {
-    binding.searchRepo.setText(query)
+    private fun initSearch(query: String) {
+        binding.searchRepo.setText(query)
 
-    binding.searchRepo.setOnEditorActionListener { _, actionId, _ ->
-        if (actionId == EditorInfo.IME_ACTION_GO) {
-            updateRepoListFromInput()
-            true
-        } else {
-            false
+        binding.searchRepo.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_GO) {
+                updateRepoListFromInput()
+                true
+            } else {
+                false
+            }
         }
-    }
-    binding.searchRepo.setOnKeyListener { _, keyCode, event ->
-        if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-            updateRepoListFromInput()
-            true
-        } else {
-            false
+        binding.searchRepo.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                updateRepoListFromInput()
+                true
+            } else {
+                false
+            }
         }
-    }
 
-    lifecycleScope.launch {
-        @OptIn(ExperimentalPagingApi::class)
-        adapter.dataRefreshFlow.collect {
-            binding.list.scrollToPosition(0)
+        lifecycleScope.launch {
+            @OptIn(ExperimentalPagingApi::class)
+            adapter.dataRefreshFlow.collect {
+                binding.list.scrollToPosition(0)
+            }
         }
     }
-}
 
     private fun updateRepoListFromInput() {
         binding.searchRepo.text.trim().let {
