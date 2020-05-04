@@ -111,9 +111,8 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     private fun updateRepoListFromInput() {
         binding.searchRepo.text.trim().let {
             if (it.isNotEmpty()) {
-                //  binding.list.scrollToPosition(0)
+                binding.list.scrollToPosition(0)
                 viewModel.searchRepo(it.toString())
-                //adapter.submitList(null)
             }
         }
     }
