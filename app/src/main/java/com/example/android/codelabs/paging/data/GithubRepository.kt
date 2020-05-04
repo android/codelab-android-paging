@@ -85,23 +85,11 @@ class GithubRepository(private val service: GithubService) {
         try {
             val response = service.searchRepos(apiQuery, lastRequestedPage, NETWORK_PAGE_SIZE)
             Log.d("GithubRepository", "response $response")
-            if (response.isSuccessful) {
-                if (response.isSuccessful) {
-                    val repos = response.body()?.items ?: emptyList()
-                    inMemoryCache.addAll(repos)
-                    val reposByName = reposByName(query)
-                    searchResults.offer(RepoSearchResult.Success(reposByName))
-                    successful = true
-                } else {
-                    Log.d("GithubRepository", "fail to get data")
-                    searchResults.offer(RepoSearchResult.Error(IOException(response.message()
-                            ?: "Unknown error")))
-                }
-            } else {
-                Log.d("GithubRepository", "fail to get data")
-                searchResults.offer(RepoSearchResult.Error(IOException(response.message()
-                        ?: "Unknown error")))
-            }
+            val repos = response.items ?: emptyList()
+            inMemoryCache.addAll(repos)
+            val reposByName = reposByName(query)
+            searchResults.offer(RepoSearchResult.Success(reposByName))
+            successful = true
         } catch (exception: IOException) {
             searchResults.offer(RepoSearchResult.Error(exception))
         } catch (exception: HttpException) {
