@@ -18,6 +18,7 @@ package com.example.android.codelabs.paging.ui
 
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -59,8 +60,8 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        // get the view model
-        viewModel = ViewModelProvider(this, Injection.provideViewModelFactory())
+// get the view model
+        viewModel = ViewModelProvider(this, Injection.provideViewModelFactory(this))
                 .get(SearchRepositoriesViewModel::class.java)
 
         // add dividers between RecyclerView's row items
