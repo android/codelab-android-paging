@@ -16,13 +16,13 @@
 
 package com.example.android.codelabs.paging.model
 
-import androidx.lifecycle.LiveData
+import java.lang.Exception
 
 /**
- * RepoSearchResult from a search, which contains LiveData<List<Repo>> holding query data,
- * and a LiveData<String> of network error state.
+ * RepoSearchResult from a search, which contains List<Repo> holding query data,
+ * and a String of network error state.
  */
-data class RepoSearchResult(
-    val data: LiveData<List<Repo>>,
-    val networkErrors: LiveData<String>
-)
+sealed class RepoSearchResult {
+    data class Success(val data: List<Repo>) : RepoSearchResult()
+    data class Error(val error: Exception) : RepoSearchResult()
+}
