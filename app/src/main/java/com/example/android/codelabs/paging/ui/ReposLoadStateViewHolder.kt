@@ -17,8 +17,8 @@
 package com.example.android.codelabs.paging.ui
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android.codelabs.paging.R
@@ -37,9 +37,9 @@ class ReposLoadStateViewHolder(
         if (loadState is LoadState.Error) {
             binding.errorMsg.text = loadState.error.localizedMessage
         }
-        binding.progressBar.visibility = toVisibility(loadState is LoadState.Loading)
-        binding.retryButton.visibility = toVisibility(loadState !is LoadState.Loading)
-        binding.errorMsg.visibility = toVisibility(loadState !is LoadState.Loading)
+        binding.progressBar.isVisible = loadState is LoadState.Loading
+        binding.retryButton.isVisible = loadState !is LoadState.Loading
+        binding.errorMsg.isVisible = loadState !is LoadState.Loading
     }
 
     companion object {
