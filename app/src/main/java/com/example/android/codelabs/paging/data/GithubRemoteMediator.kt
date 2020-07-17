@@ -64,8 +64,13 @@ class GithubRemoteMediator(
             }
             LoadType.APPEND -> {
                 val remoteKeys = getRemoteKeyForLastItem(state)
-                if (remoteKeys == null || remoteKeys.nextKey == null) {
+                if (remoteKeys == null) {
                     throw InvalidObjectException("Remote key should not be null for $loadType")
+                }
+
+                val nextKey = remoteKeys.nextKey
+                if (nextKey == null) {
+                    return MediatorResult.Success(endOfPaginationReached = true)
                 }
                 remoteKeys.nextKey
             }
