@@ -73,7 +73,6 @@ class SearchRepositoriesViewModel(private val repository: GithubRepository) : Vi
         currentSearchResult = newResult
         return newResult
     }
-
 }
 
 sealed class UiModel {
