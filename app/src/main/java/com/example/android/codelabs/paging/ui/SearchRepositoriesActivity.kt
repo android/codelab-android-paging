@@ -130,6 +130,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
             }
         }
 
+        // Scroll to top when the list is refreshed from network.
         lifecycleScope.launch {
             adapter.loadStateFlow
                 // Only emit when REFRESH LoadState for RemoteMediator changes.
