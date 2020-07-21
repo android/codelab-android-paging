@@ -31,6 +31,7 @@ import com.example.android.codelabs.paging.Injection
 import com.example.android.codelabs.paging.databinding.ActivitySearchRepositoriesBinding
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
@@ -137,9 +138,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
                 .distinctUntilChangedBy { it.refresh }
                 // Only react to cases where Remote REFRESH switches from Loading to NotLoading.
                 .filter { it.refresh is NotLoading }
-                .collectLatest {
-                    binding.list.scrollToPosition(0)
-                }
+                .collect { binding.list.scrollToPosition(0) }
         }
     }
 
