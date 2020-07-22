@@ -136,7 +136,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
             adapter.loadStateFlow
                 // Only emit when REFRESH LoadState for RemoteMediator changes.
                 .distinctUntilChangedBy { it.refresh }
-                // Only react to cases where Remote REFRESH switches from Loading to NotLoading.
+                // Only react to cases where Remote REFRESH completes i.e., NotLoading.
                 .filter { it.refresh is NotLoading }
                 .collect { binding.list.scrollToPosition(0) }
         }
