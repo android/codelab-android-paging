@@ -26,6 +26,10 @@ import com.example.android.codelabs.paging.api.IN_QUALIFIER
 import com.example.android.codelabs.paging.db.RemoteKeys
 import com.example.android.codelabs.paging.db.RepoDatabase
 import com.example.android.codelabs.paging.model.Repo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.single
 import retrofit2.HttpException
 import java.io.IOException
 import java.io.InvalidObjectException
@@ -48,7 +52,8 @@ class GithubRemoteMediator(
                 remoteKeys?.nextKey?.minus(1) ?: GITHUB_STARTING_PAGE_INDEX
             }
             LoadType.PREPEND -> {
-                val remoteKeys = getRemoteKeyForFirstItem(state)
+                val remoteKeys = flowOf(getRemoteKeyForFirstItem(state))
+                        .flowOn(Dispatchers.IO).single()
                 if (remoteKeys == null) {
                     // The LoadType is PREPEND so some data was loaded before,
                     // so we should have been able to get remote keys
