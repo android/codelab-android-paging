@@ -24,7 +24,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.android.codelabs.paging.Injection
@@ -43,11 +42,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySearchRepositoriesBinding
     private lateinit var viewModel: SearchRepositoriesViewModel
 
-    @OptIn(ExperimentalPagingApi::class)
-    private val adapter = ReposAdapter().apply {
-        addDataRefreshListener { showEmptyView(it) }
-    }
-
+    private val adapter = ReposAdapter()
     private var searchJob: Job? = null
 
     private fun search(query: String) {
@@ -102,6 +97,8 @@ class SearchRepositoriesActivity : AppCompatActivity() {
             binding.progressBar.isVisible = loadState.source.refresh is LoadState.Loading
             // Show the retry state if initial load or refresh fails.
             binding.retryButton.isVisible = loadState.source.refresh is LoadState.Error
+
+            showEmptyView(loadState.refresh is LoadState.NotLoading && adapter.itemCount == 0)
 
             // Toast on any error, regardless of whether it came from RemoteMediator or PagingSource
             val errorState = loadState.source.append as? LoadState.Error
