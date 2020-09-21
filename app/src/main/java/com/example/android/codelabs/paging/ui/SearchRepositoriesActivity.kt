@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.android.codelabs.paging.Injection
@@ -41,7 +42,11 @@ class SearchRepositoriesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchRepositoriesBinding
     private lateinit var viewModel: SearchRepositoriesViewModel
-    private val adapter = ReposAdapter()
+
+    @OptIn(ExperimentalPagingApi::class)
+    private val adapter = ReposAdapter().apply {
+        addDataRefreshListener { showEmptyView(it) }
+    }
 
     private var searchJob: Job? = null
 
@@ -74,6 +79,10 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         search(query)
         initSearch(query)
         binding.retryButton.setOnClickListener { adapter.retry() }
+    }
+
+    private fun showEmptyView(isEmpty: Boolean) {
+        binding.emptyList.isVisible = isEmpty
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
