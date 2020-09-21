@@ -41,8 +41,8 @@ class SearchRepositoriesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchRepositoriesBinding
     private lateinit var viewModel: SearchRepositoriesViewModel
-
     private val adapter = ReposAdapter()
+
     private var searchJob: Job? = null
 
     private fun search(query: String) {
