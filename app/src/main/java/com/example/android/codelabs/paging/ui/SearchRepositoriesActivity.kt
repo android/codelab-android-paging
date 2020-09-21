@@ -88,7 +88,6 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         )
         adapter.addLoadStateListener { loadState ->
             // Only show the list if refresh succeeds.
-            binding.list.isVisible = loadState.source.refresh is LoadState.NotLoading
             // Show loading spinner during initial load or refresh.
             binding.progressBar.isVisible = loadState.source.refresh is LoadState.Loading
             // Show the retry state if initial load or refresh fails.
