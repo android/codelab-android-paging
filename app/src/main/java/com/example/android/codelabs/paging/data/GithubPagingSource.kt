@@ -39,7 +39,7 @@ class GithubPagingSource(
             LoadResult.Page(
                     data = repos,
                     prevKey = if (position == GITHUB_STARTING_PAGE_INDEX) null else position - 1,
-                    nextKey = if (repos.isEmpty()) null else position + 1
+                    nextKey = if (repos.isEmpty()) null else position + params.loadSize / GithubRepository.NETWORK_PAGE_SIZE
             )
         } catch (exception: IOException) {
             LoadResult.Error(exception)
