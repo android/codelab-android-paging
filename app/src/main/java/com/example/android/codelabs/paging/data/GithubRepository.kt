@@ -21,11 +21,8 @@ import com.example.android.codelabs.paging.api.GithubService
 import com.example.android.codelabs.paging.api.IN_QUALIFIER
 import com.example.android.codelabs.paging.model.Repo
 import com.example.android.codelabs.paging.model.RepoSearchResult
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -35,15 +32,14 @@ private const val GITHUB_STARTING_PAGE_INDEX = 1
 /**
  * Repository class that works with local and remote data sources.
  */
-@ExperimentalCoroutinesApi
 class GithubRepository(private val service: GithubService) {
 
     // keep the list of all results received
     private val inMemoryCache = mutableListOf<Repo>()
 
-    // keep channel of results. The channel allows us to broadcast updates so
+    // shared flow of results, which allows us to broadcast updates so
     // the subscriber will have the latest data
-    private val searchResults = ConflatedBroadcastChannel<RepoSearchResult>()
+    private val searchResults = MutableSharedFlow<RepoSearchResult>(replay = 1)
 
     // keep the last requested page. When the request is successful, increment the page number.
     private var lastRequestedPage = GITHUB_STARTING_PAGE_INDEX
@@ -61,7 +57,7 @@ class GithubRepository(private val service: GithubService) {
         inMemoryCache.clear()
         requestAndSaveData(query)
 
-        return searchResults.asFlow()
+        return searchResults
     }
 
     suspend fun requestMore(query: String) {
@@ -88,12 +84,12 @@ class GithubRepository(private val service: GithubService) {
             val repos = response.items ?: emptyList()
             inMemoryCache.addAll(repos)
             val reposByName = reposByName(query)
-            searchResults.offer(RepoSearchResult.Success(reposByName))
+            searchResults.emit(RepoSearchResult.Success(reposByName))
             successful = true
         } catch (exception: IOException) {
-            searchResults.offer(RepoSearchResult.Error(exception))
+            searchResults.emit(RepoSearchResult.Error(exception))
         } catch (exception: HttpException) {
-            searchResults.offer(RepoSearchResult.Error(exception))
+            searchResults.emit(RepoSearchResult.Error(exception))
         }
         isRequestInProgress = false
         return successful

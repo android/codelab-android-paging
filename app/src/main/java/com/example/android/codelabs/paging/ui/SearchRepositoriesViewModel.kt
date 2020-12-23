@@ -20,15 +20,12 @@ import androidx.lifecycle.*
 import com.example.android.codelabs.paging.data.GithubRepository
 import com.example.android.codelabs.paging.model.RepoSearchResult
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 
 /**
  * ViewModel for the [SearchRepositoriesActivity] screen.
  * The ViewModel works with the [GithubRepository] to get the data.
  */
-@ExperimentalCoroutinesApi
 class SearchRepositoriesViewModel(private val repository: GithubRepository) : ViewModel() {
 
     companion object {
