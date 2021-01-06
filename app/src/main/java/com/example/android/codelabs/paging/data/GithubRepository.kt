@@ -100,7 +100,7 @@ class GithubRepository(private val service: GithubService) {
         // the query. Then order the results.
         return inMemoryCache.filter {
             it.name.contains(query, true) ||
-                    (it.description != null && it.description.contains(query, true))
+                (it.description != null && it.description.contains(query, true))
         }.sortedWith(compareByDescending<Repo> { it.stars }.thenBy { it.name })
     }
 

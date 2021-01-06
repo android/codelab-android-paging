@@ -16,7 +16,6 @@
 
 package com.example.android.codelabs.paging
 
-import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import com.example.android.codelabs.paging.api.GithubService
 import com.example.android.codelabs.paging.data.GithubRepository

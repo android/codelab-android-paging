@@ -18,11 +18,11 @@ package com.example.android.codelabs.paging.ui
 
 import android.content.Intent
 import android.net.Uri
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.example.android.codelabs.paging.R
 import com.example.android.codelabs.paging.model.Repo
 
@@ -88,7 +88,7 @@ class RepoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     companion object {
         fun create(parent: ViewGroup): RepoViewHolder {
             val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.repo_view_item, parent, false)
+                .inflate(R.layout.repo_view_item, parent, false)
             return RepoViewHolder(view)
         }
     }

@@ -19,7 +19,6 @@ package com.example.android.codelabs.paging.api
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -36,9 +35,9 @@ interface GithubService {
      */
     @GET("search/repositories?sort=stars")
     suspend fun searchRepos(
-            @Query("q") query: String,
-            @Query("page") page: Int,
-            @Query("per_page") itemsPerPage: Int
+        @Query("q") query: String,
+        @Query("page") page: Int,
+        @Query("per_page") itemsPerPage: Int
     ): RepoSearchResponse
 
     companion object {
@@ -49,14 +48,14 @@ interface GithubService {
             logger.level = Level.BASIC
 
             val client = OkHttpClient.Builder()
-                    .addInterceptor(logger)
-                    .build()
+                .addInterceptor(logger)
+                .build()
             return Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .client(client)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
-                    .create(GithubService::class.java)
+                .baseUrl(BASE_URL)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(GithubService::class.java)
         }
     }
 }

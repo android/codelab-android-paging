@@ -45,7 +45,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
 
         // get the view model
         viewModel = ViewModelProvider(this, Injection.provideViewModelFactory())
-                .get(SearchRepositoriesViewModel::class.java)
+            .get(SearchRepositoriesViewModel::class.java)
 
         // add dividers between RecyclerView's row items
         val decoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
@@ -75,9 +75,9 @@ class SearchRepositoriesActivity : AppCompatActivity() {
                 }
                 is RepoSearchResult.Error -> {
                     Toast.makeText(
-                            this,
-                            "\uD83D\uDE28 Wooops $result.message}",
-                            Toast.LENGTH_LONG
+                        this,
+                        "\uD83D\uDE28 Wooops $result.message}",
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }
