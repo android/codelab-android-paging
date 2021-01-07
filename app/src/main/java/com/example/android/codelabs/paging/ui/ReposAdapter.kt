@@ -19,22 +19,22 @@ package com.example.android.codelabs.paging.ui
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.android.codelabs.paging.model.Repo
 
 /**
  * Adapter for the list of repositories.
  */
-class ReposAdapter : PagingDataAdapter<Repo, ViewHolder>(REPO_COMPARATOR) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+class ReposAdapter : PagingDataAdapter<Repo, RepoViewHolder>(REPO_COMPARATOR) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RepoViewHolder {
         return RepoViewHolder.create(parent)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RepoViewHolder, position: Int) {
         val repoItem = getItem(position)
         if (repoItem != null) {
-            (holder as RepoViewHolder).bind(repoItem)
+            holder.bind(repoItem)
         }
     }
 
