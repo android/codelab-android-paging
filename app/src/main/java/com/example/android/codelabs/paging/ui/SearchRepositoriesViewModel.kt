@@ -18,7 +18,6 @@ package com.example.android.codelabs.paging.ui
 
 import androidx.lifecycle.*
 import com.example.android.codelabs.paging.data.GithubRepository
-import com.example.android.codelabs.paging.model.RepoSearchResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
