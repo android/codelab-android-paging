@@ -40,8 +40,15 @@ class GithubRemoteMediator(
         private val repoDatabase: RepoDatabase
 ) : RemoteMediator<Int, Repo>() {
 
-    override suspend fun load(loadType: LoadType, state: PagingState<Int, Repo>): MediatorResult {
+    override suspend fun initialize(): InitializeAction {
+        // Launch remote refresh as soon as paging starts and do not trigger remote prepend or
+        // append until refresh has succeeded. In cases where we don't mind showing out-of-date,
+        // cached offline data, we can return SKIP_INITIAL_REFRESH instead to prevent paging
+        // triggering remote refresh.
+        return InitializeAction.LAUNCH_INITIAL_REFRESH
+    }
 
+    override suspend fun load(loadType: LoadType, state: PagingState<Int, Repo>): MediatorResult {
         val page = when (loadType) {
             LoadType.REFRESH -> {
                 val remoteKeys = getRemoteKeyClosestToCurrentPosition(state)
@@ -49,25 +56,25 @@ class GithubRemoteMediator(
             }
             LoadType.PREPEND -> {
                 val remoteKeys = getRemoteKeyForFirstItem(state)
-                if (remoteKeys == null) {
-                    // The LoadType is PREPEND so some data was loaded before,
-                    // so we should have been able to get remote keys
-                    // If the remoteKeys are null, then we're an invalid state and we have a bug
-                    throw InvalidObjectException("Remote key and the prevKey should not be null")
-                }
-                // If the previous key is null, then we can't request more data
-                val prevKey = remoteKeys.prevKey
+                // If the previous key is null, then the list is empty so we should wait for data
+                // fetched by remote refresh and can simply skip loading this time by returning
+                // `false` for endOfPaginationReached.
+                val prevKey = remoteKeys?.prevKey
                 if (prevKey == null) {
-                    return MediatorResult.Success(endOfPaginationReached = true)
+                    return MediatorResult.Success(endOfPaginationReached = false)
                 }
-                remoteKeys.prevKey
+                prevKey
             }
             LoadType.APPEND -> {
                 val remoteKeys = getRemoteKeyForLastItem(state)
-                if (remoteKeys == null || remoteKeys.nextKey == null) {
-                    throw InvalidObjectException("Remote key should not be null for $loadType")
+                // If the next key is null, then the list is empty so we should wait for data
+                // fetched by remote refresh and can simply skip loading this time by returning
+                // `false` for endOfPaginationReached.
+                val nextKey = remoteKeys?.nextKey
+                if (nextKey == null) {
+                    return MediatorResult.Success(endOfPaginationReached = true)
                 }
-                remoteKeys.nextKey
+                nextKey
             }
 
         }

@@ -17,6 +17,7 @@
 package com.example.android.codelabs.paging.data
 
 import android.util.Log
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -44,6 +45,7 @@ class GithubRepository(
         val dbQuery = "%${query.replace(' ', '%')}%"
         val pagingSourceFactory = { database.reposDao().reposByName(dbQuery) }
 
+        @OptIn(ExperimentalPagingApi::class)
         return Pager(
                 config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
                 remoteMediator = GithubRemoteMediator(
