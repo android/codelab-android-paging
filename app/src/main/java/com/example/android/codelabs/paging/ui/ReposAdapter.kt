@@ -40,10 +40,10 @@ class ReposAdapter : ListAdapter<Repo, RepoViewHolder>(REPO_COMPARATOR) {
     companion object {
         private val REPO_COMPARATOR = object : DiffUtil.ItemCallback<Repo>() {
             override fun areItemsTheSame(oldItem: Repo, newItem: Repo): Boolean =
-                    oldItem.fullName == newItem.fullName
+                oldItem.fullName == newItem.fullName
 
             override fun areContentsTheSame(oldItem: Repo, newItem: Repo): Boolean =
-                    oldItem == newItem
+                oldItem == newItem
         }
     }
 }
