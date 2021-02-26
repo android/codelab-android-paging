@@ -59,11 +59,12 @@ class GithubPagingSource(
 
     // The refresh key is used for the initial load of the next PagingSource, after invalidation
     override fun getRefreshKey(state: PagingState<Int, Repo>): Int? {
-        // We need to get the previous key of the page that was closest to
-        // the most recently accessed index.
+        // We need to get the previous key (or next key if previous is null) of the page
+        // that was closest to the most recently accessed index.
         // Anchor position is the most recently accessed index
         return state.anchorPosition?.let { anchorPosition ->
-            state.closestPageToPosition(anchorPosition)?.prevKey
+            state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
+                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
         }
     }
 }
