@@ -59,7 +59,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
 
         // get the view model
         viewModel = ViewModelProvider(this, Injection.provideViewModelFactory())
-                .get(SearchRepositoriesViewModel::class.java)
+            .get(SearchRepositoriesViewModel::class.java)
 
         // add dividers between RecyclerView's row items
         val decoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
@@ -103,11 +103,11 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         // Scroll to top when the list is refreshed from network.
         lifecycleScope.launch {
             adapter.loadStateFlow
-                    // Only emit when REFRESH LoadState for RemoteMediator changes.
-                    .distinctUntilChangedBy { it.refresh }
-                    // Only react to cases where Remote REFRESH completes i.e., NotLoading.
-                    .filter { it.refresh is LoadState.NotLoading }
-                    .collect { binding.list.scrollToPosition(0) }
+                // Only emit when REFRESH LoadState for RemoteMediator changes.
+                .distinctUntilChangedBy { it.refresh }
+                // Only react to cases where Remote REFRESH completes i.e., NotLoading.
+                .filter { it.refresh is LoadState.NotLoading }
+                .collect { binding.list.scrollToPosition(0) }
         }
     }
 

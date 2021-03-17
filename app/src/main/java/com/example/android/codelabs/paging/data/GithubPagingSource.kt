@@ -17,6 +17,7 @@
 package com.example.android.codelabs.paging.data
 
 import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import com.example.android.codelabs.paging.api.GithubService
 import com.example.android.codelabs.paging.api.IN_QUALIFIER
 import com.example.android.codelabs.paging.data.GithubRepository.Companion.NETWORK_PAGE_SIZE
@@ -53,6 +54,17 @@ class GithubPagingSource(
             LoadResult.Error(exception)
         } catch (exception: HttpException) {
             LoadResult.Error(exception)
+        }
+    }
+
+    // The refresh key is used for the initial load of the next PagingSource, after invalidation
+    override fun getRefreshKey(state: PagingState<Int, Repo>): Int? {
+        // We need to get the previous key (or next key if previous is null) of the page
+        // that was closest to the most recently accessed index.
+        // Anchor position is the most recently accessed index
+        return state.anchorPosition?.let { anchorPosition ->
+            state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
+                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
         }
     }
 }
