@@ -18,6 +18,7 @@ package com.example.android.codelabs.paging.ui
 
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -81,10 +82,15 @@ class SearchRepositoriesActivity : AppCompatActivity() {
 
     private fun initAdapter() {
         binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
-                header = ReposLoadStateAdapter { adapter.retry() },
-                footer = ReposLoadStateAdapter { adapter.retry() }
+            header = ReposLoadStateAdapter { adapter.retry() },
+            footer = ReposLoadStateAdapter { adapter.retry() }
         )
         adapter.addLoadStateListener { loadState ->
+
+            // show empty list
+            val isListEmpty = loadState.refresh is LoadState.NotLoading && adapter.itemCount == 0
+            showEmptyList(isListEmpty)
+
             // Only show the list if refresh succeeds.
             binding.list.isVisible = loadState.source.refresh is LoadState.NotLoading
             // Show loading spinner during initial load or refresh.
@@ -94,18 +100,17 @@ class SearchRepositoriesActivity : AppCompatActivity() {
 
             // Toast on any error, regardless of whether it came from RemoteMediator or PagingSource
             val errorState = loadState.source.append as? LoadState.Error
-                    ?: loadState.source.prepend as? LoadState.Error
-                    ?: loadState.append as? LoadState.Error
-                    ?: loadState.prepend as? LoadState.Error
+                ?: loadState.source.prepend as? LoadState.Error
+                ?: loadState.append as? LoadState.Error
+                ?: loadState.prepend as? LoadState.Error
             errorState?.let {
                 Toast.makeText(
-                        this,
-                        "\uD83D\uDE28 Wooops ${it.error}",
-                        Toast.LENGTH_LONG
+                    this,
+                    "\uD83D\uDE28 Wooops ${it.error}",
+                    Toast.LENGTH_LONG
                 ).show()
             }
         }
-
     }
 
     private fun initSearch(query: String) {
@@ -144,6 +149,16 @@ class SearchRepositoriesActivity : AppCompatActivity() {
             if (it.isNotEmpty()) {
                 search(it.toString())
             }
+        }
+    }
+
+    private fun showEmptyList(show: Boolean) {
+        if (show) {
+            binding.emptyList.visibility = View.VISIBLE
+            binding.list.visibility = View.GONE
+        } else {
+            binding.emptyList.visibility = View.GONE
+            binding.list.visibility = View.VISIBLE
         }
     }
 
