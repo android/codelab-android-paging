@@ -52,7 +52,7 @@ ext {
     materialVersion = '1.3.0'
     lifecycleVersion = '2.3.1'
     roomVersion = '2.3.0'
-    pagingVersion = '3.0.0-beta01'
+    pagingVersion = '3.0.0'
     retrofitVersion = '2.9.0'
     okhttpLoggingInterceptorVersion = '4.9.0'
     coroutines = '1.4.3'
