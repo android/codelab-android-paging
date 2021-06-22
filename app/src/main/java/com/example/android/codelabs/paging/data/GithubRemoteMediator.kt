@@ -85,7 +85,11 @@ class GithubRemoteMediator(
         val apiQuery = query + IN_QUALIFIER
 
         try {
-            val apiResponse = service.searchRepos(apiQuery, page, state.config.pageSize)
+            val pageSize = when(loadType) {
+                LoadType.REFRESH -> state.config.initialLoadSize
+                else -> state.config.pageSize
+            }
+            val apiResponse = service.searchRepos(apiQuery, page, pageSize)
 
             val repos = apiResponse.items
             val endOfPaginationReached = repos.isEmpty()
@@ -96,7 +100,12 @@ class GithubRemoteMediator(
                     repoDatabase.reposDao().clearRepos()
                 }
                 val prevKey = if (page == GITHUB_STARTING_PAGE_INDEX) null else page - 1
-                val nextKey = if (endOfPaginationReached) null else page + 1
+                // .load with loadType = APPEND uses pageSize = state.config.pageSize, so nextKey
+                // should always be computed based on increments of state.config.pageSize.
+                // E.g., If we load items 0-59 on initial load with key = 1, the nextKey should
+                // not be 2, because that would load items 20-39, which overlaps our initial load
+                // instead of fetching new data as intended.
+                val nextKey = if (endOfPaginationReached) null else page + (pageSize / state.config.pageSize)
                 val keys = repos.map {
                     RemoteKeys(repoId = it.id, prevKey = prevKey, nextKey = nextKey)
                 }
