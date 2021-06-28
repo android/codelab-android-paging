@@ -26,7 +26,6 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.android.codelabs.paging.Injection
 import com.example.android.codelabs.paging.databinding.ActivitySearchRepositoriesBinding
@@ -83,9 +82,12 @@ class SearchRepositoriesActivity : AppCompatActivity() {
 
     private fun initAdapter() {
         val header = ReposLoadStateAdapter { adapter.retry() }
-        val footer = ReposLoadStateAdapter { adapter.retry() }
 
-        binding.list.adapter = ConcatAdapter(header, adapter, footer)
+        binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = header,
+            footer = ReposLoadStateAdapter { adapter.retry() }
+        )
+
         adapter.addLoadStateListener { loadState ->
 
             // show empty list
@@ -98,7 +100,6 @@ class SearchRepositoriesActivity : AppCompatActivity() {
                 ?.refresh
                 ?.takeIf { it is LoadState.Error && adapter.itemCount > 0 }
                 ?: loadState.prepend
-            footer.loadState = loadState.append
 
             // Only show the list if refresh succeeds, either from the the local db or the remote.
             binding.list.isVisible =  loadState.source.refresh is LoadState.NotLoading || loadState.mediator?.refresh is LoadState.NotLoading
