@@ -81,22 +81,32 @@ class SearchRepositoriesActivity : AppCompatActivity() {
     }
 
     private fun initAdapter() {
+        val header = ReposLoadStateAdapter { adapter.retry() }
+
         binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
-            header = ReposLoadStateAdapter { adapter.retry() },
+            header = header,
             footer = ReposLoadStateAdapter { adapter.retry() }
         )
+
         adapter.addLoadStateListener { loadState ->
 
             // show empty list
             val isListEmpty = loadState.refresh is LoadState.NotLoading && adapter.itemCount == 0
             showEmptyList(isListEmpty)
 
-            // Only show the list if refresh succeeds.
-            binding.list.isVisible = loadState.mediator?.refresh is LoadState.NotLoading
+            // Show a retry header if there was an error refreshing, and items were previously
+            // cached OR default to the default prepend state
+            header.loadState = loadState.mediator
+                ?.refresh
+                ?.takeIf { it is LoadState.Error && adapter.itemCount > 0 }
+                ?: loadState.prepend
+
+            // Only show the list if refresh succeeds, either from the the local db or the remote.
+            binding.list.isVisible =  loadState.source.refresh is LoadState.NotLoading || loadState.mediator?.refresh is LoadState.NotLoading
             // Show loading spinner during initial load or refresh.
             binding.progressBar.isVisible = loadState.mediator?.refresh is LoadState.Loading
-            // Show the retry state if initial load or refresh fails.
-            binding.retryButton.isVisible = loadState.mediator?.refresh is LoadState.Error
+            // Show the retry state if initial load or refresh fails and there are no items.
+            binding.retryButton.isVisible = loadState.mediator?.refresh is LoadState.Error && adapter.itemCount == 0
             // Toast on any error, regardless of whether it came from RemoteMediator or PagingSource
             val errorState = loadState.source.append as? LoadState.Error
                 ?: loadState.source.prepend as? LoadState.Error
