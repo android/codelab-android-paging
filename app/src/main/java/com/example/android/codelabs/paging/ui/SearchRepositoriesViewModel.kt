@@ -25,54 +25,81 @@ import androidx.paging.map
 import com.example.android.codelabs.paging.data.GithubRepository
 import com.example.android.codelabs.paging.model.Repo
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.withIndex
 
 /**
  * ViewModel for the [SearchRepositoriesActivity] screen.
  * The ViewModel works with the [GithubRepository] to get the data.
  */
 class SearchRepositoriesViewModel(private val repository: GithubRepository) : ViewModel() {
-    private var currentQueryValue: String? = null
 
-    private var currentSearchResult: Flow<PagingData<UiModel>>? = null
+    val state: Flow<UiState>
+    val search: (String) -> Unit
 
-    fun searchRepo(queryString: String): Flow<PagingData<UiModel>> {
-        val lastResult = currentSearchResult
-        if (queryString == currentQueryValue && lastResult != null) {
-            return lastResult
-        }
-        currentQueryValue = queryString
-        val newResult: Flow<PagingData<UiModel>> = repository.getSearchResultStream(queryString)
-                .map { pagingData -> pagingData.map { UiModel.RepoItem(it) } }
-                .map {
-                    it.insertSeparators<UiModel.RepoItem, UiModel> { before, after ->
-                        if (after == null) {
-                            // we're at the end of the list
-                            return@insertSeparators null
-                        }
+    init {
+        val searches = MutableStateFlow("Android")
 
-                        if (before == null) {
-                            // we're at the beginning of the list
-                            return@insertSeparators UiModel.SeparatorItem("${after.roundedStarCount}0.000+ stars")
-                        }
-                        // check between 2 items
-                        if (before.roundedStarCount > after.roundedStarCount) {
-                            if (after.roundedStarCount >= 1) {
-                                UiModel.SeparatorItem("${after.roundedStarCount}0.000+ stars")
-                            } else {
-                                UiModel.SeparatorItem("< 10.000+ stars")
-                            }
+        search = { searches.tryEmit(it) }
+
+        state = searches
+            .flatMapLatest { query ->
+                searchRepo(query)
+                    .withIndex()
+                    .map { (index, pagingData) ->
+                        UiState(
+                            query = query,
+                            pagingData = pagingData,
+                            queryChanged = index == 0
+                        )
+                    }
+            }
+            .shareIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+                replay = 1
+            )
+    }
+
+    private fun searchRepo(queryString: String): Flow<PagingData<UiModel>> =
+        repository.getSearchResultStream(queryString)
+            .map { pagingData -> pagingData.map { UiModel.RepoItem(it) } }
+            .map {
+                it.insertSeparators<UiModel.RepoItem, UiModel> { before, after ->
+                    if (after == null) {
+                        // we're at the end of the list
+                        return@insertSeparators null
+                    }
+
+                    if (before == null) {
+                        // we're at the beginning of the list
+                        return@insertSeparators UiModel.SeparatorItem("${after.roundedStarCount}0.000+ stars")
+                    }
+                    // check between 2 items
+                    if (before.roundedStarCount > after.roundedStarCount) {
+                        if (after.roundedStarCount >= 1) {
+                            UiModel.SeparatorItem("${after.roundedStarCount}0.000+ stars")
                         } else {
-                            // no separator
-                            null
+                            UiModel.SeparatorItem("< 10.000+ stars")
                         }
+                    } else {
+                        // no separator
+                        null
                     }
                 }
+            }
             .cachedIn(viewModelScope)
-        currentSearchResult = newResult
-        return newResult
-    }
 }
+
+data class UiState(
+    val queryChanged: Boolean = true,
+    val query: String = "Android",
+    val pagingData: PagingData<UiModel> = PagingData.empty()
+)
 
 sealed class UiModel {
     data class RepoItem(val repo: Repo) : UiModel()
