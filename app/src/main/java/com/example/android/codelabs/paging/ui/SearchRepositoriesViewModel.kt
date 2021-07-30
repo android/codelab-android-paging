@@ -59,7 +59,7 @@ class SearchRepositoriesViewModel(
 
     init {
         val initialQuery: String = savedStateHandle.get(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
-        val lastQueryScrolled: String? = savedStateHandle.get(LAST_QUERY_SCROLLED)
+        val lastQueryScrolled: String = savedStateHandle.get(LAST_QUERY_SCROLLED) ?: DEFAULT_QUERY
         val actionStateFlow = MutableSharedFlow<UiAction>()
         val searches = actionStateFlow
             .filterIsInstance<UiAction.Search>()
@@ -97,7 +97,6 @@ class SearchRepositoriesViewModel(
                         )
                     }
             }
-            .onStart { emit(UiState()) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
@@ -123,12 +122,12 @@ class SearchRepositoriesViewModel(
 
 sealed class UiAction {
     data class Search(val query: String) : UiAction()
-    data class Scroll(val currentQuery: String?) : UiAction()
+    data class Scroll(val currentQuery: String) : UiAction()
 }
 
 data class UiState(
     val query: String = DEFAULT_QUERY,
-    val lastQueryScrolled: String? = null,
+    val lastQueryScrolled: String = DEFAULT_QUERY,
     val hasNotScrolledForCurrentSearch: Boolean = false,
     val pagingData: PagingData<Repo> = PagingData.empty()
 )
