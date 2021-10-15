@@ -17,7 +17,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.5.0'
+    ext.kotlin_version = '1.5.20'
     repositories {
         google()
         mavenCentral()
@@ -42,18 +42,18 @@ task clean(type: Delete) {
 }
 
 ext {
-    compileSdkVersion = 28
+    compileSdkVersion = 31
     minSdkVersion = 15
-    targetSdkVersion = 28
-    supportLibVersion = '1.2.0'
-    coreVersion = '1.3.2'
-    recyclerViewVersion = '1.2.0'
-    constraintLayoutVersion = '2.0.4'
+    targetSdkVersion = 31
+    supportLibVersion = '1.3.1'
+    coreVersion = '1.6.0'
+    recyclerViewVersion = '1.2.1'
+    constraintLayoutVersion = '2.1.1'
     materialVersion = '1.3.0'
     lifecycleVersion = '2.3.1'
     roomVersion = '2.3.0'
-    pagingVersion = '3.0.0'
+    pagingVersion = '3.1.0-beta01'
     retrofitVersion = '2.9.0'
     okhttpLoggingInterceptorVersion = '4.9.0'
-    coroutines = '1.4.3'
+    coroutines = '1.5.0'
 }
