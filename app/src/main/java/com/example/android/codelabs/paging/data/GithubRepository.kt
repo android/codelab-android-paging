@@ -81,7 +81,7 @@ class GithubRepository(private val service: GithubService) {
         try {
             val response = service.searchRepos(apiQuery, lastRequestedPage, NETWORK_PAGE_SIZE)
             Log.d("GithubRepository", "response $response")
-            val repos = response.items ?: emptyList()
+            val repos = response.items
             inMemoryCache.addAll(repos)
             val reposByName = reposByName(query)
             searchResults.emit(RepoSearchResult.Success(reposByName))
