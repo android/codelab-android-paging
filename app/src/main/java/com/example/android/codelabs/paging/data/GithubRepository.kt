@@ -44,6 +44,10 @@ class GithubRepository(private val service: GithubService) {
     // keep the last requested page. When the request is successful, increment the page number.
     private var lastRequestedPage = GITHUB_STARTING_PAGE_INDEX
 
+    // keeps the total number of available items from our service, necessary to
+    // go through with requesting more or not
+    private var totalItemCount = Int.MAX_VALUE
+
     // avoid triggering multiple requests in the same time
     private var isRequestInProgress = false
 
@@ -54,6 +58,7 @@ class GithubRepository(private val service: GithubService) {
     suspend fun getSearchResultStream(query: String): Flow<RepoSearchResult> {
         Log.d("GithubRepository", "New query: $query")
         lastRequestedPage = 1
+        totalItemCount = Int.MAX_VALUE
         inMemoryCache.clear()
         requestAndSaveData(query)
 
@@ -62,10 +67,8 @@ class GithubRepository(private val service: GithubService) {
 
     suspend fun requestMore(query: String) {
         if (isRequestInProgress) return
-        val successful = requestAndSaveData(query)
-        if (successful) {
-            lastRequestedPage++
-        }
+        if (totalItemCount < (lastRequestedPage - 1) * NETWORK_PAGE_SIZE) return
+        requestAndSaveData(query)
     }
 
     suspend fun retry(query: String) {
@@ -82,9 +85,11 @@ class GithubRepository(private val service: GithubService) {
             val response = service.searchRepos(apiQuery, lastRequestedPage, NETWORK_PAGE_SIZE)
             Log.d("GithubRepository", "response $response")
             val repos = response.items ?: emptyList()
+            totalItemCount = response.total
             inMemoryCache.addAll(repos)
             val reposByName = reposByName(query)
             searchResults.emit(RepoSearchResult.Success(reposByName))
+            lastRequestedPage++
             successful = true
         } catch (exception: IOException) {
             searchResults.emit(RepoSearchResult.Error(exception))
