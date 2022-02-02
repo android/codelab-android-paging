@@ -55,7 +55,10 @@ class GithubRepository(private val service: GithubService) {
         Log.d("GithubRepository", "New query: $query")
         lastRequestedPage = 1
         inMemoryCache.clear()
-        requestAndSaveData(query)
+        val successful = requestAndSaveData(query)
+        if (successful) {
+            lastRequestedPage++
+        }
 
         return searchResults
     }
