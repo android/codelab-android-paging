@@ -1,0 +1,15 @@
+
+// Use version catalogs for managing dependencies
+// https://docs.gradle.org/current/userguide/platforms.html
+enableFeaturePreview("VERSION_CATALOGS")
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+include ':app'

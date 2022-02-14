@@ -1,0 +1,35 @@
+[versions]
+androidDesugarJdkLibs = "1.1.5"
+androidGradlePlugin = "7.0.4"
+androidxActivity = "1.4.0"
+androidxAppCompat = "1.3.0"
+androidxCore = "1.7.0"
+androidxLifecycle = "2.4.0"
+androidxPaging = "3.1.0"
+recyclerView = "1.2.1"
+constraintLayout = "2.1.2"
+kotlin = "1.6.0"
+kotlinxCoroutines = "1.6.0"
+ktlint = "0.43.0"
+material = "1.4.0"
+spotless = "6.0.0"
+
+[libraries]
+android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "androidxActivity" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
+androidx-lifecycle-viewModel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
+androidx-paging-common-ktx = { group = "androidx.paging", name = "paging-common-ktx", version.ref = "androidxPaging" }
+androidx-paging-runtime-ktx = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "androidxPaging" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerView" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintLayout" }
+google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+
+[plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
