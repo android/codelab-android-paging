@@ -33,11 +33,18 @@ class GithubPagingSource(
     private val query: String
 ) : PagingSource<Int, Repo>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Repo> {
-        val position = params.key ?: GITHUB_STARTING_PAGE_INDEX
+        val position = params.key?.let {
+            it * NETWORK_PAGE_SIZE / params.loadSize
+        } ?: GITHUB_STARTING_PAGE_INDEX
         val apiQuery = query + IN_QUALIFIER
         return try {
             val response = service.searchRepos(apiQuery, position, params.loadSize)
             val repos = response.items
+            val prevKey = if (position == GITHUB_STARTING_PAGE_INDEX) {
+                null
+            } else {
+                (position * params.loadSize / NETWORK_PAGE_SIZE) - 1
+            }
             val nextKey = if (repos.isEmpty()) {
                 null
             } else {
@@ -47,7 +54,7 @@ class GithubPagingSource(
             }
             LoadResult.Page(
                 data = repos,
-                prevKey = if (position == GITHUB_STARTING_PAGE_INDEX) null else position - 1,
+                prevKey = prevKey,
                 nextKey = nextKey
             )
         } catch (exception: IOException) {
