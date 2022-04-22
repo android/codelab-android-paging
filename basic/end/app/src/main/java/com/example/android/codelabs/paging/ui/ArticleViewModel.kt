@@ -27,6 +27,8 @@ import com.example.android.codelabs.paging.data.ArticleRepository
 import com.example.android.codelabs.paging.data.ITEMS_PER_PAGE
 import kotlinx.coroutines.flow.Flow
 
+private const val ITEMS_PER_PAGE = 50
+
 /**
  * ViewModel for the [ArticleActivity] screen.
  * The ViewModel works with the [ArticleRepository] to get the data.

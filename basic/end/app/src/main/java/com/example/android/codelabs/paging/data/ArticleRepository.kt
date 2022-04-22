@@ -18,8 +18,6 @@ package com.example.android.codelabs.paging.data
 
 import androidx.paging.PagingSource
 
-const val ITEMS_PER_PAGE = 50
-
 /**
  * Repository class that mimics fetching [Article] instances from an asynchronous source.
  */
