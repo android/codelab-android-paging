@@ -68,10 +68,10 @@ class ArticlePagingSource : PagingSource<Int, Article>() {
     // The refresh key is used for the initial load of the next PagingSource, after invalidation
     override fun getRefreshKey(state: PagingState<Int, Article>): Int? {
         // In our case we grab the item closest to the anchor position
-        // then return its id - ITEMS_PER_PAGE as a buffer
+        // then return its id - (state.config.pageSize / 2) as a buffer
         val anchorPosition = state.anchorPosition ?: return null
         val article = state.closestItemToPosition(anchorPosition) ?: return null
-        return ensureValidKey(key = article.id - ITEMS_PER_PAGE)
+        return ensureValidKey(key = article.id - (state.config.pageSize / 2))
     }
 
     /**
