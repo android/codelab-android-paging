@@ -24,7 +24,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.android.codelabs.paging.data.Article
 import com.example.android.codelabs.paging.data.ArticleRepository
-import com.example.android.codelabs.paging.data.ITEMS_PER_PAGE
 import kotlinx.coroutines.flow.Flow
 
 private const val ITEMS_PER_PAGE = 50
