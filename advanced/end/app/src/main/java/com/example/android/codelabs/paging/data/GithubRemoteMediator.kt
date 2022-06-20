@@ -72,7 +72,7 @@ class GithubRemoteMediator(
                 // If remoteKeys is null, that means the refresh result is not in the database yet.
                 // We can return Success with `endOfPaginationReached = false` because Paging
                 // will call this method again if RemoteKeys becomes non-null.
-                // If remoteKeys is NOT NULL but its prevKey is null, that means we've reached
+                // If remoteKeys is NOT NULL but its nextKey is null, that means we've reached
                 // the end of pagination for append.
                 val nextKey = remoteKeys?.nextKey
                 if (nextKey == null) {
