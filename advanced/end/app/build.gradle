@@ -48,6 +48,7 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    namespace 'com.example.android.codelabs.paging'
 }
 
 dependencies {
@@ -65,10 +66,14 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion"
+
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
-    implementation "androidx.paging:paging-runtime-ktx:$pagingVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
+
+    implementation "androidx.room:room-paging:$roomVersion"
+    implementation "androidx.paging:paging-runtime-ktx:$pagingVersion"
+
 
     // retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
