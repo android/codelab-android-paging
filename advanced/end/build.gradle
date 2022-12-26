@@ -17,13 +17,13 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.6.0'
+    ext.kotlin_version = '1.7.20'
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.android.tools.build:gradle:7.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -40,18 +40,18 @@ task clean(type: Delete) {
 }
 
 ext {
-    compileSdkVersion = 31
-    minSdkVersion = 15
-    targetSdkVersion = 31
-    supportLibVersion = '1.4.0'
-    coreVersion = '1.7.0'
+    compileSdkVersion = 33
+    minSdkVersion = 24
+    targetSdkVersion = 33
+    supportLibVersion = '1.5.1'
+    coreVersion = '1.9.0'
     recyclerViewVersion = '1.2.1'
-    constraintLayoutVersion = '2.1.2'
-    materialVersion = '1.4.0'
-    lifecycleVersion = '2.4.0'
-    roomVersion = '2.3.0'
-    pagingVersion = '3.1.0'
+    constraintLayoutVersion = '2.1.4'
+    materialVersion = '1.7.0'
+    lifecycleVersion = '2.5.1'
+    roomVersion = '2.4.3'
+    pagingVersion = '3.1.1'
     retrofitVersion = '2.9.0'
-    okhttpLoggingInterceptorVersion = '4.9.0'
-    coroutines = '1.5.2'
+    okhttpLoggingInterceptorVersion = '5.0.0-alpha.11'
+    coroutines = '1.6.4'
 }
