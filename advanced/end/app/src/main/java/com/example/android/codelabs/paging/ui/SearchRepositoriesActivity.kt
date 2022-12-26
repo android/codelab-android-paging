@@ -181,15 +181,18 @@ class SearchRepositoriesActivity : AppCompatActivity() {
                     ?.takeIf { it is LoadState.Error && repoAdapter.itemCount > 0 }
                     ?: loadState.prepend
 
-                val isListEmpty = loadState.refresh is LoadState.NotLoading && repoAdapter.itemCount == 0
+                val isListEmpty =
+                    loadState.refresh is LoadState.NotLoading && repoAdapter.itemCount == 0
                 // show empty list
                 emptyList.isVisible = isListEmpty
                 // Only show the list if refresh succeeds, either from the the local db or the remote.
-                list.isVisible =  loadState.source.refresh is LoadState.NotLoading || loadState.mediator?.refresh is LoadState.NotLoading
+                list.isVisible =
+                    loadState.source.refresh is LoadState.NotLoading || loadState.mediator?.refresh is LoadState.NotLoading
                 // Show loading spinner during initial load or refresh.
                 progressBar.isVisible = loadState.mediator?.refresh is LoadState.Loading
                 // Show the retry state if initial load or refresh fails.
-                retryButton.isVisible = loadState.mediator?.refresh is LoadState.Error && repoAdapter.itemCount == 0
+                retryButton.isVisible =
+                    loadState.mediator?.refresh is LoadState.Error && repoAdapter.itemCount == 0
                 // Toast on any error, regardless of whether it came from RemoteMediator or PagingSource
                 val errorState = loadState.source.append as? LoadState.Error
                     ?: loadState.source.prepend as? LoadState.Error
