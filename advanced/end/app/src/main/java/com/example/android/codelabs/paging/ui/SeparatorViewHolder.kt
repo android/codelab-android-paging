@@ -33,7 +33,7 @@ class SeparatorViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     companion object {
         fun create(parent: ViewGroup): SeparatorViewHolder {
             val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.separator_view_item, parent, false)
+                .inflate(R.layout.separator_view_item, parent, false)
             return SeparatorViewHolder(view)
         }
     }
