@@ -31,7 +31,9 @@ import kotlinx.coroutines.flow.Flow
    2. Requests data when the user is close to the end of the list.
  */
 
-class GithubRepository(private val service: GithubService) {
+class GithubRepository(private val service: GithubService,
+                       private val database: RepoDatabase
+) {
 
     fun getSearchResultStream(query: String): Flow<PagingData<Repo>> {
         return Pager(

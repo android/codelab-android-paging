@@ -51,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
     implementation fileTree(dir: 'libs')
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines"
