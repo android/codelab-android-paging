@@ -156,6 +156,19 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         )
             .distinctUntilChanged()
 
+
+        // Collecting from loadStateFlow directly.
+        lifecycleScope.launch {
+            repoAdapter.loadStateFlow.collect { loadState ->
+                val isListEmpty = loadState.refresh is LoadState.NotLoading && repoAdapter.itemCount == 0
+                // show empty list
+                emptyList.isVisible = isListEmpty
+                // Only show the list if refresh succeeds.
+                list.isVisible = !isListEmpty
+            }
+        }
+
+        /*
         lifecycleScope.launch {
             pagingData.collectLatest(repoAdapter::submitData)
         }
@@ -165,5 +178,7 @@ class SearchRepositoriesActivity : AppCompatActivity() {
                 if (shouldScroll) list.scrollToPosition(0)
             }
         }
+        */
+
     }
 }
