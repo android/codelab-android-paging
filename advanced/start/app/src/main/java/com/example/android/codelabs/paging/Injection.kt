@@ -23,13 +23,13 @@ import com.example.android.codelabs.paging.data.GithubRepository
 import com.example.android.codelabs.paging.ui.ViewModelFactory
 
 /**
- * Class that handles object creation.
+ * Class that handles creation.
  * Like this, objects can be passed as parameters in the constructors and then replaced for
  * testing, where needed.
  */
 object Injection {
 
-    /**
+    /**object
      * Creates an instance of [GithubRepository] based on the [GithubService] and a
      * [GithubLocalCache]
      */
