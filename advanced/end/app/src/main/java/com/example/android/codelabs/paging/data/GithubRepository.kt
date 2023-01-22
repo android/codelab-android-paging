@@ -35,14 +35,20 @@ class GithubRepository(private val service: GithubService,
                        private val database: RepoDatabase
 ) {
 
+    // appending '%' so we can allow other characters to be before and after the query string
+    val dbQuery = "%${query.replace(' ', '%')}%"
+    val pagingSourceFactory =  { database.reposDao().reposByName(dbQuery)}
+
     fun getSearchResultStream(query: String): Flow<PagingData<Repo>> {
+        @OptIn(ExperimentalPagingApi::class)
         return Pager(
             config = PagingConfig(
                 pageSize = NETWORK_PAGE_SIZE,
                 maxSize = NETWORK_MAX_SIZE,
                 enablePlaceholders = false
             ),
-            pagingSourceFactory = { GithubPagingSource(service, query) }
+            remoteMediator =  GithubRemoteMediator(service, query, database) }
+            pagingSourceFactory = pagingSourceFactory
         ).flow
     }
 
