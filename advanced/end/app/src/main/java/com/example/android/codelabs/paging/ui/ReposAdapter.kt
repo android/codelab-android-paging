@@ -63,7 +63,7 @@ class ReposAdapter : PagingDataAdapter<UiModel, ViewHolder>(UIMODEL_COMPARATOR) 
             }
 
             override fun areContentsTheSame(oldItem: UiModel, newItem: UiModel): Boolean =
-                    oldItem == newItem
+                oldItem == newItem
         }
     }
 }

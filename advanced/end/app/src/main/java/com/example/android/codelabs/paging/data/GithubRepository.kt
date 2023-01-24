@@ -26,38 +26,34 @@ import com.example.android.codelabs.paging.db.RepoDatabase
 import com.example.android.codelabs.paging.model.Repo
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Repository class that works with local and remote data sources.
+/** Paging 3 now : )
+ * 1. Handles in-memory cache.
+   2. Requests data when the user is close to the end of the list.
  */
-class GithubRepository(
-    private val service: GithubService,
-    private val database: RepoDatabase
+
+class GithubRepository(private val service: GithubService,
+                       private val database: RepoDatabase
 ) {
 
-    /**
-     * Search repositories whose names match the query, exposed as a stream of data that will emit
-     * every time we get more data from the network.
-     */
+    // appending '%' so we can allow other characters to be before and after the query string
+    val dbQuery = "%${query.replace(' ', '%')}%"
+    val pagingSourceFactory =  { database.reposDao().reposByName(dbQuery)}
+
     fun getSearchResultStream(query: String): Flow<PagingData<Repo>> {
-        Log.d("GithubRepository", "New query: $query")
-
-        // appending '%' so we can allow other characters to be before and after the query string
-        val dbQuery = "%${query.replace(' ', '%')}%"
-        val pagingSourceFactory = { database.reposDao().reposByName(dbQuery) }
-
         @OptIn(ExperimentalPagingApi::class)
         return Pager(
-            config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
-            remoteMediator = GithubRemoteMediator(
-                query,
-                service,
-                database
+            config = PagingConfig(
+                pageSize = NETWORK_PAGE_SIZE,
+                maxSize = NETWORK_MAX_SIZE,
+                enablePlaceholders = false
             ),
+            remoteMediator =  GithubRemoteMediator(service, query, database) }
             pagingSourceFactory = pagingSourceFactory
         ).flow
     }
 
     companion object {
-        const val NETWORK_PAGE_SIZE = 30
+        const val NETWORK_PAGE_SIZE = 50
+        const val NETWORK_MAX_SIZE = 150
     }
 }

@@ -45,7 +45,7 @@ import kotlinx.coroutines.launch
  */
 class SearchRepositoriesViewModel(
     private val repository: GithubRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle  // SavedStateRegistryOwner
 ) : ViewModel() {
 
     /**
@@ -53,7 +53,7 @@ class SearchRepositoriesViewModel(
      */
     val state: StateFlow<UiState>
 
-    val pagingDataFlow: Flow<PagingData<UiModel>>
+    val pagingDataFlow: Flow<PagingData<Repo>>
 
     /**
      * Processor of side effects from the UI which in turn feedback into [state]
@@ -61,6 +61,8 @@ class SearchRepositoriesViewModel(
     val accept: (UiAction) -> Unit
 
     init {
+
+        // UiAction Stream
         val initialQuery: String = savedStateHandle.get(LAST_SEARCH_QUERY) ?: DEFAULT_QUERY
         val lastQueryScrolled: String = savedStateHandle.get(LAST_QUERY_SCROLLED) ?: DEFAULT_QUERY
         val actionStateFlow = MutableSharedFlow<UiAction>()
@@ -80,6 +82,7 @@ class SearchRepositoriesViewModel(
             )
             .onStart { emit(UiAction.Scroll(currentQuery = lastQueryScrolled)) }
 
+        // flows for both PagingData and UiState
         pagingDataFlow = searches
             .flatMapLatest { searchRepo(queryString = it.query) }
             .cachedIn(viewModelScope)
@@ -143,14 +146,16 @@ class SearchRepositoriesViewModel(
 }
 
 sealed class UiAction {
-    data class Search(val query: String) : UiAction()
-    data class Scroll(val currentQuery: String) : UiAction()
+    data class Search(val query: String) : UiAction()    // query
+    data class Scroll(//val currentQuery: String,
+                      val visibleItemCount: Int,
+                      val lastVisibleItemPosition: Int,
+                      val totalItemCount: Int) : UiAction()  // scrolling down the screen to load alot of data
 }
 
 data class UiState(
-    val query: String = DEFAULT_QUERY,
-    val lastQueryScrolled: String = DEFAULT_QUERY,
-    val hasNotScrolledForCurrentSearch: Boolean = false
+    val query: String,
+    val searchResult: RepoSearchResult
 )
 
 sealed class UiModel {
