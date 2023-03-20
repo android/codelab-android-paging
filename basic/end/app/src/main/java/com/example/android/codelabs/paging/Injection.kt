@@ -32,7 +32,7 @@ object Injection {
     /**
      * Creates an instance of [ArticleRepository]
      */
-    private fun provideArticleRepository(): ArticleRepository = ArticleRepository()
+    private fun provideArticleRepository(): ArticleRepository = object : ArticleRepository {}
 
     /**
      * Provides the [ViewModelProvider.Factory] that is then used to get a reference to
