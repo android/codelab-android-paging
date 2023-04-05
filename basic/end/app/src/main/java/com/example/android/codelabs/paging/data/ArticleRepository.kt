@@ -26,5 +26,5 @@ interface ArticleRepository {
     /**
      * [PagingSource] for [Article]
      */
-    fun articlePagingSource() = ArticlePagingSource()
+    fun articlePagingSource(): PagingSource<Int, Article> = ArticlePagingSource()
 }
