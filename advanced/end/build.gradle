@@ -49,7 +49,7 @@ ext {
     constraintLayoutVersion = '2.1.2'
     materialVersion = '1.4.0'
     lifecycleVersion = '2.4.0'
-    roomVersion = '2.3.0'
+    roomVersion = '2.4.0'
     pagingVersion = '3.1.0'
     retrofitVersion = '2.9.0'
     okhttpLoggingInterceptorVersion = '4.9.0'
