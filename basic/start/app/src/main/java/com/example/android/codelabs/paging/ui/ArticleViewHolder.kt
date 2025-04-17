@@ -30,9 +30,9 @@ class ArticleViewHolder(
 
     fun bind(article: Article) {
         binding.apply {
-            binding.title.text = article.title
-            binding.description.text = article.description
-            binding.created.text = article.createdText
+            title.text = article.title
+            description.text = article.description
+            created.text = article.createdText
         }
     }
 }
